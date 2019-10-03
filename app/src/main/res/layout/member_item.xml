@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/text_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal">
+
+
+   <TextView
+       android:id="@+id/no"
+       android:layout_width="0dp"
+       android:layout_height="wrap_content"
+       android:layout_weight="1"
+       android:gravity="left"
+       android:textSize="18sp"
+       android:textAlignment="center"
+       tools:text="200" />
+
+   <TextView
+       android:id="@+id/name"
+       android:layout_width="0dp"
+       android:layout_height="wrap_content"
+       android:layout_weight="1"
+       android:gravity="left"
+       android:textSize="20sp"
+       android:textAlignment="center"
+       tools:text="송효주" />
+
+   <TextView
+       android:id="@+id/HP"
+       android:layout_width="0dp"
+       android:layout_height="wrap_content"
+       android:layout_weight="2"
+       android:gravity="left"
+       android:textSize="18sp"
+       android:textAlignment="center"
+       tools:text="010-2030-2805" />
+
+
+</LinearLayout>
