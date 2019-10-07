@@ -8,4 +8,6 @@
     <color name="timestamp">#858585</color>
     <color name="note_list_text">#232323</color>
     <color name="background">#FAFAFA</color>
+    <color name="toolbarBackgroundThemeDark">#062342</color>
+    <color name="textThemeDark">#ffffff</color>
 </resources>

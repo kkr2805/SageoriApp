@@ -11,7 +11,7 @@ public class PublishActivity extends AppCompatActivity {
         setContentView(R.layout.publish_layout);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
-        toolbar.setTitle("발관리");
+        toolbar.setTitle("발행관리");
         setSupportActionBar(toolbar);
     }
 }

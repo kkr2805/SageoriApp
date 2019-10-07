@@ -11,7 +11,7 @@ public class ScoreboxActivity extends AppCompatActivity {
         setContentView(R.layout.scorebox_layout);
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
-        toolbar.setTitle("점수보관함");
+        toolbar.setTitle("점수관리");
         setSupportActionBar(toolbar);
     }
 }

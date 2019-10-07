@@ -21,6 +21,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class MembersActivity extends AppCompatActivity {
 
     @Override
@@ -34,23 +40,47 @@ public class MembersActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
 
-        String[] arrName = {"송효주", "김두현", "송지현"};
-        String[] arrPhone = {"010-9278-2806", "010-2030-2805", "010-8609-2806"};
+        //String[] arrName = {"송효주", "김두현", "송지현"};
+        //String[] arrPhone = {"010-9278-2806", "010-2030-2805", "010-8609-2806"};
 
-        ArrayList<MemberItem> dataList = new ArrayList();
-        for(int k = 0; k < 30; k++){
-            MemberItem member = new MemberItem();
+        //ArrayList<MemberItem> dataList = new ArrayList();
+        //for(int k = 0; k < 30; k++){
+        //    MemberItem member = new MemberItem();
 
-            member.No = k + 1;
-            member.Name = arrName[k % arrName.length];
-            member.HP = arrPhone[k % arrPhone.length];
-            
-            dataList.add(member);
-        }
+        //    member.No = k + 1;
+        //    member.Name = arrName[k % arrName.length];
+        //    member.HP = arrPhone[k % arrPhone.length];
+        //    
+        //    dataList.add(member);
+        //}
         
-        ListView listView = (ListView)findViewById(R.id.listview);
-        MemberListAdapter adapter = new MemberListAdapter(this, 0, dataList);
-        listView.setAdapter(adapter);
+		Retrofit client = new Retrofit.Builder()
+									.baseUrl("http://192.168.1.26:3000/")		
+									.addConverterFactory(GsonConverterFactory.create())
+									.build();
+		SageoriAPI api = client.create(SageoriAPI.class);
+		Call<List<MemberItem>> callMembers = api.getMembers();
+		callMembers.enqueue(new Callback<List<MemberItem>>(){
+			@Override
+			public void onResponse(Call<List<MemberItem>> call, Response<List<MemberItem>> response){
+				if(response.isSuccessful()){
+					List<MemberItem> dataList = response.body();
+
+					ListView listView = (ListView)findViewById(R.id.listview);
+					MemberListAdapter adapter = new MemberListAdapter(MembersActivity.this, 0, dataList);
+					listView.setAdapter(adapter);
+				}
+			}
+
+			@Override
+			public void onFailure(Call<List<MemberItem>> call, Throwable t) {
+				
+			}
+		});
+
+        //ListView listView = (ListView)findViewById(R.id.listview);
+        //MemberListAdapter adapter = new MemberListAdapter(this, 0, dataList);
+        //listView.setAdapter(adapter);
 
     }
 
