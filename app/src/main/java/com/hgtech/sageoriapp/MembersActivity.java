@@ -20,12 +20,15 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Date;
 
 import retrofit2.Call;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import com.google.gson.*;
 
 public class MembersActivity extends AppCompatActivity {
 
@@ -54,9 +57,12 @@ public class MembersActivity extends AppCompatActivity {
         //    dataList.add(member);
         //}
         
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Date.class, new GsonDateFormatAdapter());
+
 		Retrofit client = new Retrofit.Builder()
 									.baseUrl("http://192.168.1.26:3000/")		
-									.addConverterFactory(GsonConverterFactory.create())
+									.addConverterFactory(GsonConverterFactory.create(builder.create()))
 									.build();
 		SageoriAPI api = client.create(SageoriAPI.class);
 		Call<List<MemberItem>> callMembers = api.getMembers();
