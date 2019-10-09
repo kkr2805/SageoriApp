@@ -35,7 +35,7 @@
             android:layout_weight="2"
             android:ems="10"
             android:inputType="textPersonName"
-            android:text="송효주" />
+            android:text="" />
 
     </LinearLayout>
 
@@ -59,7 +59,7 @@
             android:layout_weight="2"
             android:ems="10"
             android:inputType="phone"
-            android:text="010-9278-2806" />
+            android:text="" />
 
     </LinearLayout>
 </LinearLayout>

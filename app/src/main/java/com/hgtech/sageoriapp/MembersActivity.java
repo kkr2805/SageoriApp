@@ -16,11 +16,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
+import android.widget.EditText;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Date;
+import java.util.HashMap;
 
 import retrofit2.Call;
 import retrofit2.Retrofit;
@@ -31,6 +33,30 @@ import retrofit2.Response;
 import com.google.gson.*;
 
 public class MembersActivity extends AppCompatActivity {
+
+    private List<MemberItem> dataList;
+    private MemberListAdapter listAdapter;
+
+    private class CallbackGetMembers implements Callback<List<MemberItem>> {
+        @Override
+        public void onResponse(Call<List<MemberItem>> call, Response<List<MemberItem>> response){
+            if(response.isSuccessful()){
+                dataList = response.body();
+                listAdapter.clear();
+                listAdapter.addAll(dataList);
+                listAdapter.notifyDataSetChanged();
+
+                Toast.makeText(getApplicationContext(), "데이터 조회 완료.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void onFailure(Call<List<MemberItem>> call, Throwable t) {
+                String strErrMessage = new String("데이터 조회 실패." );
+                strErrMessage += t.getMessage();
+                Toast.makeText(getApplicationContext(), strErrMessage, Toast.LENGTH_SHORT).show();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +83,11 @@ public class MembersActivity extends AppCompatActivity {
         //    dataList.add(member);
         //}
         
+        ListView listView = (ListView)findViewById(R.id.listview);
+        dataList = new ArrayList<MemberItem>();
+        listAdapter = new MemberListAdapter(this, 0, dataList);
+        listView.setAdapter(listAdapter);
+
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Date.class, new GsonDateFormatAdapter());
 
@@ -66,23 +97,7 @@ public class MembersActivity extends AppCompatActivity {
 									.build();
 		SageoriAPI api = client.create(SageoriAPI.class);
 		Call<List<MemberItem>> callMembers = api.getMembers();
-		callMembers.enqueue(new Callback<List<MemberItem>>(){
-			@Override
-			public void onResponse(Call<List<MemberItem>> call, Response<List<MemberItem>> response){
-				if(response.isSuccessful()){
-					List<MemberItem> dataList = response.body();
-
-					ListView listView = (ListView)findViewById(R.id.listview);
-					MemberListAdapter adapter = new MemberListAdapter(MembersActivity.this, 0, dataList);
-					listView.setAdapter(adapter);
-				}
-			}
-
-			@Override
-			public void onFailure(Call<List<MemberItem>> call, Throwable t) {
-				
-			}
-		});
+		callMembers.enqueue(new CallbackGetMembers());
 
         //ListView listView = (ListView)findViewById(R.id.listview);
         //MemberListAdapter adapter = new MemberListAdapter(this, 0, dataList);
@@ -131,8 +146,8 @@ public class MembersActivity extends AppCompatActivity {
         alertDialogBuilderUserInput
                 .setCancelable(false)
                 .setPositiveButton(shouldUpdate ? "수정" : "저장", new DialogInterface.OnClickListener() {
+                    @Override
                     public void onClick(DialogInterface dialogBox, int id) {
-
                     }
                 })
                 .setNegativeButton("취소",
@@ -148,22 +163,62 @@ public class MembersActivity extends AppCompatActivity {
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // Show toast message when no text is entered
-                //if (TextUtils.isEmpty(inputNote.getText().toString())) {
-                //    Toast.makeText(MembersActivity.this, "Enter note!", Toast.LENGTH_SHORT).show();
-                 //   return;
-                //} else {
-                    alertDialog.dismiss();
-                //}
 
-                // check if user updating note
-                if (shouldUpdate /*&& note != null*/) {
-                    // update note by it's id
-                    //updateNote(inputNote.getText().toString(), position);
-                } else {
-                    // create new note
-                    //createNote(inputNote.getText().toString());
-                }
+                    EditText nameEdit = (EditText)alertDialog.findViewById(R.id.editTextName);
+                    EditText hpEdit = (EditText)alertDialog.findViewById(R.id.editTextHP);
+
+                    String strName = nameEdit.getText().toString();
+                    String strHP = hpEdit.getText().toString();
+
+                    if(strName.length() == 0) {
+                        Toast.makeText(getApplicationContext(), "이름을 입력하세요.", Toast.LENGTH_SHORT).show();
+                        nameEdit.requestFocus();
+                        return;
+                    }
+
+                    if(strHP.length() == 0) {
+                        Toast.makeText(getApplicationContext(), "전화번호를 입력하세요.", Toast.LENGTH_SHORT).show();
+                        hpEdit.requestFocus();
+                        return;
+                    }
+                    
+                    HashMap<String, String> postData = new HashMap<String, String>();
+                    postData.put("Name", strName);
+                    postData.put("HP", strHP);
+                    //postData.put("Name", "김두현");
+                    //postData.put("HP", "010-9239-3945");
+
+                    GsonBuilder builder = new GsonBuilder();
+                    builder.registerTypeAdapter(Date.class, new GsonDateFormatAdapter());
+
+                    Retrofit client = new Retrofit.Builder()
+                                                .baseUrl("http://192.168.1.26:3000/")		
+                                                .addConverterFactory(GsonConverterFactory.create(builder.create()))
+                                                .build();
+                    final SageoriAPI api = client.create(SageoriAPI.class);
+                    Call<SageoriResult> callPost = api.createMember(postData);
+                    callPost.enqueue(new Callback<SageoriResult>(){
+                        @Override
+                        public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
+                            if(response.isSuccessful()){
+                                Toast.makeText(getApplicationContext(), "등록되었습니다.", Toast.LENGTH_SHORT).show();
+
+                                // 리스트 최신내용으로 업데이트
+                                Call<List<MemberItem>> callMembers = api.getMembers();
+                                callMembers.enqueue(new CallbackGetMembers());
+                                
+                                return;
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<SageoriResult> call, Throwable t) {
+                            Toast.makeText(getApplicationContext(), "등록실패", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    });
+
+                    alertDialog.dismiss();
             }
         });
     }
