@@ -19,4 +19,10 @@ public interface SageoriAPI {
 
     @POST("/api/create_member") 
     Call<SageoriResult> createMember(@Body HashMap<String, String> param);
+
+    @POST("/api/update_member") 
+    Call<SageoriResult> updateMember(@Body HashMap<String, String> param);
+
+    @POST("/api/delete_member") 
+    Call<SageoriResult> deleteMember(@Body HashMap<String, String> param);
 }

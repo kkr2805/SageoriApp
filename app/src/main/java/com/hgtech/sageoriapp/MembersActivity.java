@@ -7,7 +7,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import android.telephony.PhoneNumberFormattingTextWatcher;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -15,8 +17,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.EditText;
+import android.util.Log;
+import android.widget.AdapterView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +37,14 @@ import retrofit2.Response;
 
 import com.google.gson.*;
 
-public class MembersActivity extends AppCompatActivity {
+public class MembersActivity extends AppCompatActivity
+                            implements SwipeRefreshLayout.OnRefreshListener {
 
+    static final String BASE_URL = "http://192.168.1.26:3000/";
     private List<MemberItem> dataList;
     private MemberListAdapter listAdapter;
+
+    SwipeRefreshLayout swipeLayout;
 
     private class CallbackGetMembers implements Callback<List<MemberItem>> {
         @Override
@@ -46,6 +55,7 @@ public class MembersActivity extends AppCompatActivity {
                 listAdapter.addAll(dataList);
                 listAdapter.notifyDataSetChanged();
 
+                Log.d("Tag", "데이터 조회 완료");
                 Toast.makeText(getApplicationContext(), "데이터 조회 완료.", Toast.LENGTH_SHORT).show();
             }
         }
@@ -67,42 +77,35 @@ public class MembersActivity extends AppCompatActivity {
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         toolbar.setTitle("회원관리");
         setSupportActionBar(toolbar);
-
-
-        //String[] arrName = {"송효주", "김두현", "송지현"};
-        //String[] arrPhone = {"010-9278-2806", "010-2030-2805", "010-8609-2806"};
-
-        //ArrayList<MemberItem> dataList = new ArrayList();
-        //for(int k = 0; k < 30; k++){
-        //    MemberItem member = new MemberItem();
-
-        //    member.No = k + 1;
-        //    member.Name = arrName[k % arrName.length];
-        //    member.HP = arrPhone[k % arrPhone.length];
-        //    
-        //    dataList.add(member);
-        //}
         
+        // SwipeRefreshLayout 설정
+        swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
+        swipeLayout.setOnRefreshListener(this);
+        
+        // ListView 설정
         ListView listView = (ListView)findViewById(R.id.listview);
         dataList = new ArrayList<MemberItem>();
         listAdapter = new MemberListAdapter(this, 0, dataList);
         listView.setAdapter(listAdapter);
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                showActionsDialog(position);
+                return false;
+            }
+        });
 
+        // Retrofit API
         GsonBuilder builder = new GsonBuilder();
         builder.registerTypeAdapter(Date.class, new GsonDateFormatAdapter());
 
 		Retrofit client = new Retrofit.Builder()
-									.baseUrl("http://192.168.1.26:3000/")		
+									.baseUrl(BASE_URL)		
 									.addConverterFactory(GsonConverterFactory.create(builder.create()))
 									.build();
 		SageoriAPI api = client.create(SageoriAPI.class);
 		Call<List<MemberItem>> callMembers = api.getMembers();
 		callMembers.enqueue(new CallbackGetMembers());
-
-        //ListView listView = (ListView)findViewById(R.id.listview);
-        //MemberListAdapter adapter = new MemberListAdapter(this, 0, dataList);
-        //listView.setAdapter(adapter);
-
     }
 
     @Override
@@ -136,26 +139,32 @@ public class MembersActivity extends AppCompatActivity {
         AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(MembersActivity.this);
         alertDialogBuilderUserInput.setView(view);
 
-        //final EditText inputNote = view.findViewById(R.id.note);
-       // TextView dialogTitle = view.findViewById(R.id.dialog_title);
-        //dialogTitle.setText(!shouldUpdate ? getString(R.string.lbl_new_note_title) : getString(R.string.lbl_edit_note_title));
+        final EditText editName = view.findViewById(R.id.editTextName);
+        final EditText editHP = view.findViewById(R.id.editTextHP);
 
-       // if (shouldUpdate && note != null) {
-       //     inputNote.setText(note.getNote());
-       // }
+        editHP.addTextChangedListener(new PhoneNumberFormattingTextWatcher());
+
+        if(shouldUpdate) {
+            editName.setText(dataList.get(position).Name);
+            editHP.setText(dataList.get(position).HP);
+        }
+        
+        TextView dialogTitle = (TextView)view.findViewById(R.id.dialogTitle);
+        dialogTitle.setText(!shouldUpdate ? "회원등록" : "회원수정");
+
         alertDialogBuilderUserInput
-                .setCancelable(false)
-                .setPositiveButton(shouldUpdate ? "수정" : "저장", new DialogInterface.OnClickListener() {
-                    @Override
+            .setCancelable(false)
+            .setPositiveButton(shouldUpdate ? "수정" : "저장", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogBox, int id) {
+                }
+            })
+        .setNegativeButton("취소",
+                new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialogBox, int id) {
+                        dialogBox.cancel();
                     }
-                })
-                .setNegativeButton("취소",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialogBox, int id) {
-                                dialogBox.cancel();
-                            }
-                        });
+                });
 
         final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
         alertDialog.show();
@@ -192,34 +201,131 @@ public class MembersActivity extends AppCompatActivity {
                     builder.registerTypeAdapter(Date.class, new GsonDateFormatAdapter());
 
                     Retrofit client = new Retrofit.Builder()
-                                                .baseUrl("http://192.168.1.26:3000/")		
+                                                .baseUrl(BASE_URL)		
                                                 .addConverterFactory(GsonConverterFactory.create(builder.create()))
                                                 .build();
                     final SageoriAPI api = client.create(SageoriAPI.class);
-                    Call<SageoriResult> callPost = api.createMember(postData);
-                    callPost.enqueue(new Callback<SageoriResult>(){
+
+                    if(shouldUpdate) {
+                        postData.put("ID", Integer.toString(dataList.get(position).ID));
+                        Call<SageoriResult> callUpdate = api.updateMember(postData);
+                        callUpdate.enqueue(new Callback<SageoriResult>(){
+                            @Override
+                            public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
+                                if(response.isSuccessful() && response.body().resultCode == 0){
+                                    Toast.makeText(getApplicationContext(), "수정되었습니다", Toast.LENGTH_SHORT).show();
+
+                                    // 리스트 최신내용으로 업데이트
+                                    Call<List<MemberItem>> callMembers = api.getMembers();
+                                    callMembers.enqueue(new CallbackGetMembers());
+
+                                    return;
+                                } else {
+                                    Toast.makeText(getApplicationContext(), "회원정보 수정실패", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<SageoriResult> call, Throwable t) {
+                                Toast.makeText(getApplicationContext(), "회원정보 수정실패", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        });
+                    } else {
+                        Call<SageoriResult> callPost = api.createMember(postData);
+                        callPost.enqueue(new Callback<SageoriResult>(){
+                            @Override
+                            public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
+                                if(response.isSuccessful() && response.body().resultCode == 0){
+                                    Toast.makeText(getApplicationContext(), "등록되었습니다", Toast.LENGTH_SHORT).show();
+
+                                    // 리스트 최신내용으로 업데이트
+                                    Call<List<MemberItem>> callMembers = api.getMembers();
+                                    callMembers.enqueue(new CallbackGetMembers());
+
+                                    return;
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<SageoriResult> call, Throwable t) {
+                                Toast.makeText(getApplicationContext(), "회원정보 등록실패", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+                        });
+                    }
+
+                    alertDialog.dismiss();
+            }
+        });
+    }
+
+    private void showActionsDialog(final int position) {
+        CharSequence colors[] = new CharSequence[]{"수정하기", "삭제하기", "전화걸기"};
+ 
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("작업을 선택하세요.");
+        builder.setItems(colors, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 0) {
+                    showNoteDialog(true, position);
+                } else if(which == 1) {
+
+                    GsonBuilder builder = new GsonBuilder();
+                    builder.registerTypeAdapter(Date.class, new GsonDateFormatAdapter());
+
+                    Retrofit client = new Retrofit.Builder()
+                                                .baseUrl(BASE_URL)		
+                                                .addConverterFactory(GsonConverterFactory.create(builder.create()))
+                                                .build();
+                    final SageoriAPI api = client.create(SageoriAPI.class);
+
+                    HashMap<String, String> postData = new HashMap<String, String>();
+                    postData.put("ID", Integer.toString(dataList.get(position).ID));
+
+                    Call<SageoriResult> callDelete = api.deleteMember(postData);
+                    callDelete.enqueue(new Callback<SageoriResult>(){
                         @Override
                         public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
-                            if(response.isSuccessful()){
-                                Toast.makeText(getApplicationContext(), "등록되었습니다.", Toast.LENGTH_SHORT).show();
+                            if(response.isSuccessful() && response.body().resultCode == 0){
+                                Toast.makeText(getApplicationContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show();
 
                                 // 리스트 최신내용으로 업데이트
                                 Call<List<MemberItem>> callMembers = api.getMembers();
                                 callMembers.enqueue(new CallbackGetMembers());
-                                
+
                                 return;
                             }
                         }
 
                         @Override
                         public void onFailure(Call<SageoriResult> call, Throwable t) {
-                            Toast.makeText(getApplicationContext(), "등록실패", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "회원정보 삭제실패", Toast.LENGTH_SHORT).show();
                             return;
                         }
                     });
-
-                    alertDialog.dismiss();
+                }
             }
         });
+        builder.show();
+    }
+
+    @Override
+    public void onRefresh() {
+        // Retrofit API
+        GsonBuilder builder = new GsonBuilder();
+        builder.registerTypeAdapter(Date.class, new GsonDateFormatAdapter());
+
+		Retrofit client = new Retrofit.Builder()
+									.baseUrl(BASE_URL)		
+									.addConverterFactory(GsonConverterFactory.create(builder.create()))
+									.build();
+		SageoriAPI api = client.create(SageoriAPI.class);
+		Call<List<MemberItem>> callMembers = api.getMembers();
+		callMembers.enqueue(new CallbackGetMembers());
+
+        swipeLayout.setRefreshing(false);
     }
 }

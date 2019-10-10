@@ -5,38 +5,56 @@
     android:id="@+id/text_container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_margin="20dp"
+    android:padding="10dp"
     android:orientation="horizontal">
 
 
    <TextView
        android:id="@+id/no"
        android:layout_width="0dp"
-       android:layout_height="wrap_content"
-       android:layout_weight="1"
-       android:gravity="left"
-       android:textSize="18sp"
+       android:layout_height="match_parent"
+       android:layout_weight="3"
+       android:gravity="center"
+       android:textSize="20sp"
        android:textAlignment="center"
        tools:text="200" />
 
-   <TextView
-       android:id="@+id/name"
+   <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+       xmlns:app="http://schemas.android.com/apk/res-auto"
+       xmlns:tools="http://schemas.android.com/tools"
        android:layout_width="0dp"
+       android:layout_weight="9"
        android:layout_height="wrap_content"
-       android:layout_weight="1"
-       android:gravity="left"
-       android:textSize="20sp"
-       android:textAlignment="center"
-       tools:text="송효주" />
+       android:paddingLeft="20dp"
+       android:orientation="vertical">
 
-   <TextView
-       android:id="@+id/HP"
-       android:layout_width="0dp"
-       android:layout_height="wrap_content"
-       android:layout_weight="2"
-       android:gravity="left"
-       android:textSize="18sp"
-       android:textAlignment="center"
-       tools:text="010-2030-2805" />
+      <TextView
+          android:id="@+id/name"
+          android:layout_width="wrap_content"
+          android:layout_height="wrap_content"
+          android:gravity="left"
+          android:textSize="20sp"
+          android:textAlignment="center"
+          tools:text="송효주" />
 
+      <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:app="http://schemas.android.com/apk/res-auto"
+          xmlns:tools="http://schemas.android.com/tools"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          android:orientation="horizontal">
+
+         <TextView
+             android:id="@+id/HP"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_weight="5"
+             android:gravity="start"
+             android:textSize="14sp"
+             android:textAlignment="textStart"
+             tools:text="010-2030-2805" />
+      </LinearLayout>
+   </LinearLayout>
 
 </LinearLayout>

@@ -8,7 +8,7 @@ import java.util.Date;
 public class MemberItem {
     @SerializedName("MEMBER_ID")
     @Expose
-    public int No;
+    public int ID;
 
     @SerializedName("NAME")
     @Expose

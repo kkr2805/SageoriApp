@@ -32,13 +32,13 @@ public class MemberListAdapter extends ArrayAdapter<MemberItem>{
         }
 
         TextView noTextView = (TextView) listItemView.findViewById(R.id.no);
-        noTextView.setText(String.valueOf(currentMemberItem.No));
+        noTextView.setText(String.valueOf(position + 1));
 
         TextView nameTextView = (TextView) listItemView.findViewById(R.id.name);
         nameTextView.setText(currentMemberItem.Name);
 
-        TextView ageTextView = (TextView) listItemView.findViewById(R.id.HP);
-        ageTextView.setText(currentMemberItem.HP);
+        TextView hpTextView = (TextView) listItemView.findViewById(R.id.HP);
+        hpTextView.setText(currentMemberItem.HP);
 
 
         return listItemView;
