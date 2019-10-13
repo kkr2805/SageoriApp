@@ -22,6 +22,7 @@ import android.widget.Toast;
 import android.widget.EditText;
 import android.util.Log;
 import android.widget.AdapterView;
+import android.app.ProgressDialog;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,7 +41,8 @@ public class MembersActivity extends AppCompatActivity
     private List<MemberItem> dataList;
     private MemberListAdapter listAdapter;
 
-    SwipeRefreshLayout swipeLayout;
+    private SwipeRefreshLayout swipeLayout;
+    private ProgressDialog progressDialog;
 
     private class CallbackGetMembers implements Callback<List<MemberItem>> {
         @Override
@@ -54,6 +56,8 @@ public class MembersActivity extends AppCompatActivity
                 Log.d("Tag", "데이터 조회 완료");
                 Toast.makeText(getApplicationContext(), "데이터 조회 완료.", Toast.LENGTH_SHORT).show();
             }
+
+            MembersActivity.this.showProgressbar(false);
         }
 
         @Override
@@ -61,6 +65,7 @@ public class MembersActivity extends AppCompatActivity
                 String strErrMessage = new String("데이터 조회 실패." );
                 strErrMessage += t.getMessage();
                 Toast.makeText(getApplicationContext(), strErrMessage, Toast.LENGTH_SHORT).show();
+                MembersActivity.this.showProgressbar(false);
         }
     }
 
@@ -91,6 +96,7 @@ public class MembersActivity extends AppCompatActivity
             }
         });
 
+        showProgressbar(true);
 
         // Retrofit API
 		SageoriAPI api = SageoriClient.getAPI();
@@ -187,6 +193,7 @@ public class MembersActivity extends AppCompatActivity
                     //postData.put("Name", "김두현");
                     //postData.put("HP", "010-9239-3945");
 
+                    showProgressbar(true);
                     final SageoriAPI api = SageoriClient.getAPI();
 
                     if(shouldUpdate) {
@@ -201,10 +208,12 @@ public class MembersActivity extends AppCompatActivity
                                     // 리스트 최신내용으로 업데이트
                                     Call<List<MemberItem>> callMembers = api.getMembers();
                                     callMembers.enqueue(new CallbackGetMembers());
-
+                                    
+                                    showProgressbar(false);
                                     return;
                                 } else {
                                     Toast.makeText(getApplicationContext(), "회원정보 수정실패", Toast.LENGTH_SHORT).show();
+                                    showProgressbar(false);
                                     return;
                                 }
                             }
@@ -212,6 +221,7 @@ public class MembersActivity extends AppCompatActivity
                             @Override
                             public void onFailure(Call<SageoriResult> call, Throwable t) {
                                 Toast.makeText(getApplicationContext(), "회원정보 수정실패", Toast.LENGTH_SHORT).show();
+                                showProgressbar(false);
                                 return;
                             }
                         });
@@ -227,6 +237,7 @@ public class MembersActivity extends AppCompatActivity
                                     Call<List<MemberItem>> callMembers = api.getMembers();
                                     callMembers.enqueue(new CallbackGetMembers());
 
+                                    showProgressbar(false);
                                     return;
                                 }
                             }
@@ -234,6 +245,7 @@ public class MembersActivity extends AppCompatActivity
                             @Override
                             public void onFailure(Call<SageoriResult> call, Throwable t) {
                                 Toast.makeText(getApplicationContext(), "회원정보 등록실패", Toast.LENGTH_SHORT).show();
+                                showProgressbar(false);
                                 return;
                             }
                         });
@@ -256,6 +268,7 @@ public class MembersActivity extends AppCompatActivity
                     showMemberDialog(true, position);
                 } else if(which == 1) {
 
+                    showProgressbar(true);
                     final SageoriAPI api = SageoriClient.getAPI();
 
                     HashMap<String, String> postData = new HashMap<String, String>();
@@ -272,6 +285,7 @@ public class MembersActivity extends AppCompatActivity
                                 Call<List<MemberItem>> callMembers = api.getMembers();
                                 callMembers.enqueue(new CallbackGetMembers());
 
+                                showProgressbar(false);
                                 return;
                             }
                         }
@@ -279,6 +293,7 @@ public class MembersActivity extends AppCompatActivity
                         @Override
                         public void onFailure(Call<SageoriResult> call, Throwable t) {
                             Toast.makeText(getApplicationContext(), "회원정보 삭제실패", Toast.LENGTH_SHORT).show();
+                            showProgressbar(false);
                             return;
                         }
                     });
@@ -288,9 +303,27 @@ public class MembersActivity extends AppCompatActivity
         builder.show();
     }
 
+    public void showProgressbar(boolean bShow) {
+        if(bShow) {
+            progressDialog = new ProgressDialog(this);
+            progressDialog.setCancelable(false);
+            progressDialog.setMessage("잠시만 기다리세요.");
+            progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+            progressDialog.setProgress(0);
+            progressDialog.setMax(100);
+            progressDialog.show();
+
+        } else {
+            if(progressDialog != null)
+                progressDialog.dismiss();
+        }
+    }
+
     @Override
     public void onRefresh() {
         // Retrofit API
+
+        showProgressbar(true);
 		SageoriAPI api = SageoriClient.getAPI();
 		Call<List<MemberItem>> callMembers = api.getMembers();
 		callMembers.enqueue(new CallbackGetMembers());
