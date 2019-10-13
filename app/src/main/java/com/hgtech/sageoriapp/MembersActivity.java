@@ -26,21 +26,17 @@ import android.widget.AdapterView;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
-import java.util.Date;
 import java.util.HashMap;
 
 import retrofit2.Call;
 import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import com.google.gson.*;
 
 public class MembersActivity extends AppCompatActivity
                             implements SwipeRefreshLayout.OnRefreshListener {
 
-    static final String BASE_URL = "http://192.168.1.26:3000/";
     private List<MemberItem> dataList;
     private MemberListAdapter listAdapter;
 
@@ -95,15 +91,9 @@ public class MembersActivity extends AppCompatActivity
             }
         });
 
-        // Retrofit API
-        GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(Date.class, new GsonDateFormatAdapter());
 
-		Retrofit client = new Retrofit.Builder()
-									.baseUrl(BASE_URL)		
-									.addConverterFactory(GsonConverterFactory.create(builder.create()))
-									.build();
-		SageoriAPI api = client.create(SageoriAPI.class);
+        // Retrofit API
+		SageoriAPI api = SageoriClient.getAPI();
 		Call<List<MemberItem>> callMembers = api.getMembers();
 		callMembers.enqueue(new CallbackGetMembers());
     }
@@ -197,14 +187,7 @@ public class MembersActivity extends AppCompatActivity
                     //postData.put("Name", "김두현");
                     //postData.put("HP", "010-9239-3945");
 
-                    GsonBuilder builder = new GsonBuilder();
-                    builder.registerTypeAdapter(Date.class, new GsonDateFormatAdapter());
-
-                    Retrofit client = new Retrofit.Builder()
-                                                .baseUrl(BASE_URL)		
-                                                .addConverterFactory(GsonConverterFactory.create(builder.create()))
-                                                .build();
-                    final SageoriAPI api = client.create(SageoriAPI.class);
+                    final SageoriAPI api = SageoriClient.getAPI();
 
                     if(shouldUpdate) {
                         postData.put("ID", Integer.toString(dataList.get(position).ID));
@@ -273,14 +256,7 @@ public class MembersActivity extends AppCompatActivity
                     showNoteDialog(true, position);
                 } else if(which == 1) {
 
-                    GsonBuilder builder = new GsonBuilder();
-                    builder.registerTypeAdapter(Date.class, new GsonDateFormatAdapter());
-
-                    Retrofit client = new Retrofit.Builder()
-                                                .baseUrl(BASE_URL)		
-                                                .addConverterFactory(GsonConverterFactory.create(builder.create()))
-                                                .build();
-                    final SageoriAPI api = client.create(SageoriAPI.class);
+                    final SageoriAPI api = SageoriClient.getAPI();
 
                     HashMap<String, String> postData = new HashMap<String, String>();
                     postData.put("ID", Integer.toString(dataList.get(position).ID));
@@ -315,14 +291,7 @@ public class MembersActivity extends AppCompatActivity
     @Override
     public void onRefresh() {
         // Retrofit API
-        GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(Date.class, new GsonDateFormatAdapter());
-
-		Retrofit client = new Retrofit.Builder()
-									.baseUrl(BASE_URL)		
-									.addConverterFactory(GsonConverterFactory.create(builder.create()))
-									.build();
-		SageoriAPI api = client.create(SageoriAPI.class);
+		SageoriAPI api = SageoriClient.getAPI();
 		Call<List<MemberItem>> callMembers = api.getMembers();
 		callMembers.enqueue(new CallbackGetMembers());
 
