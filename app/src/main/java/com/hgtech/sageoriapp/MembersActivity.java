@@ -108,7 +108,7 @@ public class MembersActivity extends AppCompatActivity
         newItemButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                showNoteDialog(false,-1);
+                showMemberDialog(false,-1);
                 return false;
             }
         });
@@ -122,7 +122,7 @@ public class MembersActivity extends AppCompatActivity
         return true;
     }
 
-    private void showNoteDialog(final boolean shouldUpdate, /*final Note note,*/ final int position) {
+    private void showMemberDialog(final boolean shouldUpdate, final int position) {
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getApplicationContext());
         View view = layoutInflaterAndroid.inflate(R.layout.member_dialog, null);
 
@@ -253,7 +253,7 @@ public class MembersActivity extends AppCompatActivity
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if (which == 0) {
-                    showNoteDialog(true, position);
+                    showMemberDialog(true, position);
                 } else if(which == 1) {
 
                     final SageoriAPI api = SageoriClient.getAPI();
