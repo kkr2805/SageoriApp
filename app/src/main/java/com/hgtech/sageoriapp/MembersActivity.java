@@ -195,7 +195,7 @@ public class MembersActivity extends AppCompatActivity
                         callUpdate.enqueue(new Callback<SageoriResult>(){
                             @Override
                             public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
-                                if(response.isSuccessful() && response.body().resultCode == 0){
+                                if(response.isSuccessful() && response.body().isSuccess()){
                                     Toast.makeText(getApplicationContext(), "수정되었습니다", Toast.LENGTH_SHORT).show();
 
                                     // 리스트 최신내용으로 업데이트
@@ -220,7 +220,7 @@ public class MembersActivity extends AppCompatActivity
                         callPost.enqueue(new Callback<SageoriResult>(){
                             @Override
                             public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
-                                if(response.isSuccessful() && response.body().resultCode == 0){
+                                if(response.isSuccessful() && response.body().isSuccess()){
                                     Toast.makeText(getApplicationContext(), "등록되었습니다", Toast.LENGTH_SHORT).show();
 
                                     // 리스트 최신내용으로 업데이트
@@ -265,7 +265,7 @@ public class MembersActivity extends AppCompatActivity
                     callDelete.enqueue(new Callback<SageoriResult>(){
                         @Override
                         public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
-                            if(response.isSuccessful() && response.body().resultCode == 0){
+                            if(response.isSuccessful() && response.body().isSuccess()){
                                 Toast.makeText(getApplicationContext(), "삭제되었습니다", Toast.LENGTH_SHORT).show();
 
                                 // 리스트 최신내용으로 업데이트
