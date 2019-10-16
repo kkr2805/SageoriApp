@@ -25,4 +25,17 @@ public interface SageoriAPI {
 
     @POST("/api/delete_member") 
     Call<SageoriResult> deleteMember(@Body HashMap<String, String> param);
+
+    @GET("/api/get_publishes")
+    Call<List<PublishItem>> getPublishes();
+
+    @POST("/api/create_publish") 
+    Call<SageoriResult> createPublishItem(@Body HashMap<String, String> param);
+
+    @POST("/api/update_publish") 
+    Call<SageoriResult> updatePublishItem(@Body HashMap<String, String> param);
+
+    @POST("/api/delete_publish") 
+    Call<SageoriResult> deletePublishItem(@Body HashMap<String, String> param);
+
 }
