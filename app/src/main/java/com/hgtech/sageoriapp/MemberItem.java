@@ -21,4 +21,18 @@ public class MemberItem {
     @SerializedName("CREATED_DATE")
     @Expose
     public Date Date;
+
+    @Override
+    public String toString(){
+        return Name;
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+        if(!(o instanceof MemberItem))
+            return false;
+
+        MemberItem other = (MemberItem)o;
+        return other.ID == ID;
+    }
 }

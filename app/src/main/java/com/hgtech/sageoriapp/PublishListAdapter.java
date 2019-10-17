@@ -38,10 +38,10 @@ public class PublishListAdapter extends ArrayAdapter<PublishItem> {
         creditView.setText(String.valueOf(currentPublishItem.Credit));
 
         TextView bankView = (TextView) listItemView.findViewById(R.id.bank);
-        bankView.setText(String.valueOf(currentPublishItem.BANK));
+        bankView.setText(String.valueOf(currentPublishItem.Bank));
 
         TextView totalView = (TextView) listItemView.findViewById(R.id.total);
-        totalView.setText(String.valueOf(currentPublishItem.Credit + currentPublishItem.BANK));
+        totalView.setText(String.valueOf(currentPublishItem.Credit + currentPublishItem.Bank));
 
         TextView memberNameView = (TextView) listItemView.findViewById(R.id.member_name);
         memberNameView.setText(currentPublishItem.MemberName);

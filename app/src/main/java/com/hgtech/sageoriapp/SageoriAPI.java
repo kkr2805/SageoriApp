@@ -26,6 +26,9 @@ public interface SageoriAPI {
     @POST("/api/delete_member") 
     Call<SageoriResult> deleteMember(@Body HashMap<String, String> param);
 
+    @GET("/api/get_machines")
+    Call<List<Integer>> getMachines();
+
     @GET("/api/get_publishes")
     Call<List<PublishItem>> getPublishes();
 
@@ -37,5 +40,4 @@ public interface SageoriAPI {
 
     @POST("/api/delete_publish") 
     Call<SageoriResult> deletePublishItem(@Body HashMap<String, String> param);
-
 }

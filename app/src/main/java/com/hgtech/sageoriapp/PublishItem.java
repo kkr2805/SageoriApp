@@ -28,7 +28,7 @@ public class PublishItem {
 
     @SerializedName("BANK")
     @Expose
-    public int BANK;
+    public int Bank;
 
     @SerializedName("CREATED_DATE")
     @Expose

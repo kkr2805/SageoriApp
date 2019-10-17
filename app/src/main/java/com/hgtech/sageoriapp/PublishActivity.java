@@ -10,8 +10,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +32,14 @@ import retrofit2.Response;
 
 public class PublishActivity extends AppCompatActivity
                             implements SwipeRefreshLayout.OnRefreshListener{
+
+    private Spinner machineSpinner;
+    private List<Integer> machineList;
+    private ArrayAdapter<Integer> machineListAdapter;
+
+    private Spinner memberSpinner;
+    private List<MemberItem> memberList;
+    private MemberSpinnerAdapter memberSpinnerAdapter;
 
     private List<PublishItem> dataList;
     private PublishListAdapter listAdapter;
@@ -62,6 +72,102 @@ public class PublishActivity extends AppCompatActivity
         }
     }
 
+    private class CallbackGetMachines implements Callback<List<Integer>> {
+
+        private boolean bShouldUpdate;
+        private int machineID;
+
+        CallbackGetMachines() {
+            this.bShouldUpdate = false; 
+            this.machineID = 0;
+        }
+
+        CallbackGetMachines(boolean bShouldUpdate, int machineID) {
+            this.bShouldUpdate = bShouldUpdate; 
+            this.machineID = machineID;
+        }
+
+        @Override
+        public void onResponse(Call<List<Integer>> call, Response<List<Integer>> response){
+            if(response.isSuccessful()){
+                machineList = response.body();
+
+                if(machineSpinner != null && machineListAdapter != null)
+                {
+                    machineListAdapter.clear();
+                    machineListAdapter.addAll(machineList);
+                    machineListAdapter.notifyDataSetChanged();
+
+                    if(this.bShouldUpdate == true){
+                        int index = machineList.indexOf(new Integer(this.machineID));
+                        machineSpinner.setSelection(index);
+                    }
+                }
+                Log.d("Tag", "데이터 조회 완료");
+                Toast.makeText(getApplicationContext(), "데이터 조회 완료.", Toast.LENGTH_SHORT).show();
+            }
+
+            PublishActivity.this.showProgressbar(false);
+        }
+
+        @Override
+        public void onFailure(Call<List<Integer>> call, Throwable t) {
+            String strErrMessage = new String("데이터 조회 실패." );
+            strErrMessage += t.getMessage();
+            Toast.makeText(getApplicationContext(), strErrMessage, Toast.LENGTH_SHORT).show();
+            PublishActivity.this.showProgressbar(false);
+        }
+    }
+
+    private class CallbackGetMembers implements Callback<List<MemberItem>> {
+
+        private boolean bShouldUpdate;
+        private int memberID;
+
+        CallbackGetMembers() {
+            this.bShouldUpdate = false;
+            this.memberID = -1;
+        }
+
+        CallbackGetMembers(boolean bShouldUpdate, int memberID) {
+            this.bShouldUpdate = bShouldUpdate;
+            this.memberID = memberID;
+        }
+
+        @Override
+        public void onResponse(Call<List<MemberItem>> call, Response<List<MemberItem>> response){
+            if(response.isSuccessful()){
+                memberList = response.body();
+
+                if(memberSpinner != null && memberSpinnerAdapter != null)
+                {
+                    memberSpinnerAdapter.clear();
+                    memberSpinnerAdapter.addAll(memberList);
+                    memberSpinnerAdapter.notifyDataSetChanged();
+                    
+                    if(this.bShouldUpdate == true) {
+                        MemberItem item = new MemberItem();
+                        item.ID = this.memberID;
+                        int index = memberList.indexOf(item);
+                        memberSpinner.setSelection(index);
+                    }
+                }
+                Log.d("Tag", "데이터 조회 완료");
+                Toast.makeText(getApplicationContext(), "데이터 조회 완료.", Toast.LENGTH_SHORT).show();
+            }
+
+            PublishActivity.this.showProgressbar(false);
+        }
+
+        @Override
+        public void onFailure(Call<List<MemberItem>> call, Throwable t) {
+            String strErrMessage = new String("데이터 조회 실패." );
+            strErrMessage += t.getMessage();
+            Toast.makeText(getApplicationContext(), strErrMessage, Toast.LENGTH_SHORT).show();
+            PublishActivity.this.showProgressbar(false);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,18 +184,12 @@ public class PublishActivity extends AppCompatActivity
         // ListView 설정
         ListView listView = (ListView)findViewById(R.id.listview);
         View headerView = getLayoutInflater().inflate(R.layout.publish_header, null, false);
-        listView.addHeaderView(headerView);
+        //listView.addHeaderView(headerView);
+
+
+
 
         dataList = new ArrayList<PublishItem>();
-
-        PublishItem item = new PublishItem();
-        item.ID = 1;
-        item.MachineID = 21;
-        item.Credit = 300;
-        item.BANK = 100;
-        item.MemberID = 1;
-        item.MemberName = "송효주";
-        dataList.add(item);
 
         listAdapter = new PublishListAdapter(this, 0, dataList);
         listView.setAdapter(listAdapter);
@@ -141,13 +241,27 @@ public class PublishActivity extends AppCompatActivity
         AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(PublishActivity.this);
         alertDialogBuilderUserInput.setView(view);
 
-        //final EditText editName = view.findViewById(R.id.editTextName);
-        //final EditText editHP = view.findViewById(R.id.editTextHP);
+
+        // machine spinner
+        machineSpinner = (Spinner)view.findViewById(R.id.spinnerMachine);
+        machineList = new ArrayList<>();
+        machineListAdapter = new ArrayAdapter<Integer>(view.getContext(), android.R.layout.simple_spinner_item, machineList);
+        machineSpinner.setAdapter(machineListAdapter);
+
+        // member spinner
+        memberSpinner = (Spinner)view.findViewById(R.id.spinnerMember);
+        memberList = new ArrayList<>();
+        memberSpinnerAdapter = new MemberSpinnerAdapter(view.getContext(), android.R.layout.simple_spinner_item, memberList);
+        memberSpinner.setAdapter(memberSpinnerAdapter);
+
+
+        EditText editCredit = (EditText)view.findViewById(R.id.editTextCredit);
+        EditText editBank = (EditText)view.findViewById(R.id.editTextBank);
 
 
         if(shouldUpdate) {
-            //editName.setText(dataList.get(position).Name);
-            //editHP.setText(dataList.get(position).HP);
+            editCredit.setText(Integer.toString(dataList.get(position).Credit));
+            editBank.setText(Integer.toString(dataList.get(position).Bank));
         }
 
         TextView dialogTitle = (TextView)view.findViewById(R.id.dialogTitle);
@@ -170,33 +284,66 @@ public class PublishActivity extends AppCompatActivity
         final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
         alertDialog.show();
 
+        // Retrofit API
+        SageoriAPI api = SageoriClient.getAPI();
+        Call<List<MemberItem>> callMembers = api.getMembers();
+        CallbackGetMembers callbackMembers;
+        if(shouldUpdate) {
+            callbackMembers = new CallbackGetMembers(true, dataList.get(position).MemberID);
+        }else{
+            callbackMembers = new CallbackGetMembers();
+        }
+        callMembers.enqueue(callbackMembers);
+Call<List<Integer>> callMachines = api.getMachines();
+        CallbackGetMachines callbackMachines;
+        if(shouldUpdate) {
+            callbackMachines = new CallbackGetMachines(true, dataList.get(position).MachineID);
+        }else{
+            callbackMachines = new CallbackGetMachines();
+        }
+        callMachines.enqueue(callbackMachines);
+
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
-                //EditText nameEdit = (EditText)alertDialog.findViewById(R.id.editTextName);
-                //EditText hpEdit = (EditText)alertDialog.findViewById(R.id.editTextHP);
+                EditText creditEdit = (EditText)alertDialog.findViewById(R.id.editTextCredit);
+                EditText bankEdit = (EditText)alertDialog.findViewById(R.id.editTextBank);
 
-                //String strName = nameEdit.getText().toString();
-                //String strHP = hpEdit.getText().toString();
+                String strCredit = creditEdit.getText().toString();
+                String strBank = bankEdit.getText().toString();
 
-                //if(strName.length() == 0) {
-                //    Toast.makeText(getApplicationContext(), "이름을 입력하세요.", Toast.LENGTH_SHORT).show();
-                //    nameEdit.requestFocus();
-                //    return;
-                //}
+                if(machineSpinner.getSelectedItemPosition() < 0) {
+                    Toast.makeText(getApplicationContext(), "기계번호를 선택하세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
-                //if(strHP.length() == 0) {
-                //    Toast.makeText(getApplicationContext(), "전화번호를 입력하세요.", Toast.LENGTH_SHORT).show();
-                //    hpEdit.requestFocus();
-                //    return;
-                //}
+                if(memberSpinner.getSelectedItemPosition() < 0) {
+                    Toast.makeText(getApplicationContext(), "회원이름을 선택하세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(strCredit.length() == 0) {
+                    Toast.makeText(getApplicationContext(), "Credit 을 입력하세요.", Toast.LENGTH_SHORT).show();
+                    creditEdit.requestFocus();
+                    return;
+                }
+
+                if(strBank.length() == 0) {
+                    Toast.makeText(getApplicationContext(), "Bank 를 입력하세요.", Toast.LENGTH_SHORT).show();
+                    bankEdit.requestFocus();
+                    return;
+                }
+
+                int machineSpinnerPos = machineSpinner.getSelectedItemPosition();
+                int memberSpinnerPos = memberSpinner.getSelectedItemPosition();
+
 
                 HashMap<String, String> postData = new HashMap<String, String>();
-                //postData.put("Name", strName);
-                //postData.put("HP", strHP);
-                //postData.put("Name", "김두현");
-                //postData.put("HP", "010-9239-3945");
+                postData.put("MachineID", Integer.toString(machineList.get(machineSpinnerPos)));
+                postData.put("MemberID", Integer.toString(memberList.get(memberSpinnerPos).ID));
+                postData.put("Credit", strCredit);
+                postData.put("Bank", strBank);
 
                 showProgressbar(true);
                 final SageoriAPI api = SageoriClient.getAPI();
