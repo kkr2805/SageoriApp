@@ -12,6 +12,7 @@ import com.google.gson.*;
 
 public class SageoriClient {
     static final private String BASE_URL = "http://192.168.1.26:3000/";
+    static final private String STATIC_RESOURCE_URL = "http://192.168.1.26:3000/static/";
     static private SageoriClient instance = new SageoriClient();
             
     static public Retrofit getClient() {
@@ -28,5 +29,9 @@ public class SageoriClient {
 
     static public SageoriAPI getAPI() {
         return getClient().create(SageoriAPI.class);
+    }
+
+    static public String GetImageURL(String filename){
+        return STATIC_RESOURCE_URL + filename;
     }
 }

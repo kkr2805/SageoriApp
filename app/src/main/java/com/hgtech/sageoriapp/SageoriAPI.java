@@ -1,5 +1,7 @@
 package com.hgtech.sageoriapp;
 
+import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -9,6 +11,7 @@ import retrofit2.http.Part;
 import retrofit2.http.PartMap;
 import retrofit2.http.Query;
 import retrofit2.http.FieldMap;
+import retrofit2.http.Url;
 
 import java.util.List;
 import java.util.HashMap;
@@ -32,12 +35,17 @@ public interface SageoriAPI {
     @GET("/api/get_publishes")
     Call<List<PublishItem>> getPublishes();
 
+    @Multipart
     @POST("/api/create_publish") 
-    Call<SageoriResult> createPublishItem(@Body HashMap<String, String> param);
+    Call<SageoriResult> createPublishItem(@PartMap HashMap<String, RequestBody> param);
 
+    @Multipart
     @POST("/api/update_publish") 
-    Call<SageoriResult> updatePublishItem(@Body HashMap<String, String> param);
+    Call<SageoriResult> updatePublishItem(@PartMap HashMap<String, RequestBody> param);
 
     @POST("/api/delete_publish") 
     Call<SageoriResult> deletePublishItem(@Body HashMap<String, String> param);
+
+    @GET
+    Call<ResponseBody> getImageFile(@Url String url);
 }

@@ -30,6 +30,10 @@ public class PublishItem {
     @Expose
     public int Bank;
 
+    @SerializedName("IMAGE_FILE")
+    @Expose
+    public String ImageFile;
+
     @SerializedName("CREATED_DATE")
     @Expose
     public java.util.Date Date;
