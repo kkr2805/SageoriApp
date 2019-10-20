@@ -40,6 +40,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -306,6 +307,9 @@ public class PublishActivity extends AppCompatActivity
         });
 
         publishImageView = (ImageView) view.findViewById(R.id.imageViewPublish);
+        publishImageView.setImageBitmap(null);
+        previewImageDialog = null;
+
         publishImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -352,7 +356,7 @@ public class PublishActivity extends AppCompatActivity
             callbackMembers = new CallbackGetMembers();
         }
         callMembers.enqueue(callbackMembers);
-Call<List<Integer>> callMachines = api.getMachines();
+        Call<List<Integer>> callMachines = api.getMachines();
         CallbackGetMachines callbackMachines;
         if(shouldUpdate) {
             callbackMachines = new CallbackGetMachines(true, dataList.get(position).MachineID);
@@ -366,6 +370,8 @@ Call<List<Integer>> callMachines = api.getMachines();
                             // display the image data in a ImageView or save it
                             Bitmap bmp = BitmapFactory.decodeStream(response.body().byteStream());
                             publishImageView.setImageBitmap(bmp);
+
+                            previewImageDialog = new PreViewImageDialog(PublishActivity.this, bmp);
                         } else {
                             // TODO
                         }
@@ -421,7 +427,8 @@ Call<List<Integer>> callMachines = api.getMachines();
 
 
                 HashMap<String, RequestBody> postData = new HashMap<String, RequestBody>();
-                RequestBody imageFile = RequestBody.create(MediaType.parse("image/*"), photoFile);
+
+
                 RequestBody machineID = RequestBody.create(MediaType.parse("text/plain"), Integer.toString(machineList.get(machineSpinnerPos)));
                 RequestBody memberID = RequestBody.create(MediaType.parse("text/plain"), Integer.toString(memberList.get(memberSpinnerPos).ID));
                 RequestBody credit = RequestBody.create(MediaType.parse("text/plain"), strCredit);
@@ -431,7 +438,11 @@ Call<List<Integer>> callMachines = api.getMachines();
                 postData.put("MemberID", memberID);
                 postData.put("Credit", credit);
                 postData.put("Bank", bank);
-                postData.put("PublishImageFile\"; filename=\"pp.png\" ", imageFile);
+
+                if(photoFile != null){
+                    RequestBody imageFile = RequestBody.create(MediaType.parse("image/*"), photoFile);
+                    postData.put("PublishImageFile\"; filename=\"pp.png\" ", imageFile);
+                }
 
                 showProgressbar(true);
                 final SageoriAPI api = SageoriClient.getAPI();
@@ -498,16 +509,46 @@ Call<List<Integer>> callMachines = api.getMachines();
     }
 
     private void showActionsDialog(final int position) {
-        CharSequence colors[] = new CharSequence[]{"수정하기", "삭제하기"};
+        CharSequence actionMenu[] = new CharSequence[]{"사진보기", "수정하기", "삭제하기"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("작업을 선택하세요.");
-        builder.setItems(colors, new DialogInterface.OnClickListener() {
+        builder.setItems(actionMenu, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if (which == 0) {
+                if(which == 0){
+                    previewImageDialog = null;
+
+                    SageoriAPI api = SageoriClient.getAPI();
+                    SageoriClient.GetImageURL(dataList.get(position).ImageFile);
+                    Call<ResponseBody> call = api.getImageFile(SageoriClient.GetImageURL(dataList.get(position).ImageFile));
+                    call.enqueue(new Callback<ResponseBody>() {
+                        @Override
+                        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                            if (response.isSuccessful()) {
+                                if (response.body() != null) {
+                                    // display the image data in a ImageView or save it
+                                    Bitmap bmp = BitmapFactory.decodeStream(response.body().byteStream());
+                                    previewImageDialog = new PreViewImageDialog(PublishActivity.this, bmp);
+                                    showPreviewImageDialog();
+                                } else {
+                                    // TODO
+                                }
+                            } else {
+                                previewImageDialog = null;
+                                showPreviewImageDialog();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<ResponseBody> call, Throwable t) {
+                            // TODO
+                        }
+                    });
+                }
+                else if (which == 1) {
                     showPublishDialog(true, position);
-                } else if(which == 1) {
+                } else if(which == 2) {
 
                     showProgressbar(true);
                     final SageoriAPI api = SageoriClient.getAPI();
@@ -562,7 +603,10 @@ Call<List<Integer>> callMachines = api.getMachines();
 
     private void showPreviewImageDialog(){
         if(previewImageDialog == null)
+        {
+            Toast.makeText(getApplicationContext(), "사진이 없습니다.", Toast.LENGTH_SHORT).show();
             return;
+        }
 
         previewImageDialog.show();
     }
@@ -581,25 +625,43 @@ Call<List<Integer>> callMachines = api.getMachines();
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Bitmap imageBitmap = null;
+
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             //Bundle extras = data.getExtras();
             //Bitmap imageBitmap = (Bitmap) extras.get("data");
-            Bitmap imageBitmap = BitmapFactory.decodeFile(photoFile.getAbsolutePath());
-            publishImageView.setImageBitmap(imageBitmap);
 
+            int compressionRatio = 25; //1 == originalImage, 2 = 50% compression, 4=25% compress
+            try {
+                imageBitmap = BitmapFactory.decodeFile (photoFile.getPath ());
+                imageBitmap.compress (Bitmap.CompressFormat.JPEG, compressionRatio, new FileOutputStream(photoFile));
+            }
+            catch (Throwable t) {
+                Log.e("ERROR", "Error compressing file." + t.toString ());
+                t.printStackTrace ();
+            }
+
+            publishImageView.setImageBitmap(imageBitmap);
             previewImageDialog = new PreViewImageDialog(this, imageBitmap);
+
         }else if(requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK) {
 
-                final Uri imageUri = data.getData();
-                //final InputStream imageStream = getContentResolver().openInputStream(imageUri);
-                //final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+            final Uri imageUri = data.getData();
+            String imgDecodableString = getUriRealPath(this, imageUri);
+            photoFile = new File(imgDecodableString);
 
-                String imgDecodableString = getUriRealPath(this, imageUri);
+            int compressionRatio = 25; //1 == originalImage, 2 = 50% compression, 4=25% compress
+            try {
+                imageBitmap = BitmapFactory.decodeFile (photoFile.getPath ());
+                imageBitmap.compress (Bitmap.CompressFormat.JPEG, compressionRatio, new FileOutputStream(photoFile));
+            }
+            catch (Throwable t) {
+                Log.e("ERROR", "Error compressing file." + t.toString ());
+                t.printStackTrace ();
+            }
 
-                final Bitmap selectedImage = BitmapFactory.decodeFile(imgDecodableString);
-
-                publishImageView.setImageBitmap(selectedImage);
-                previewImageDialog = new PreViewImageDialog(this, selectedImage);
+            publishImageView.setImageBitmap(imageBitmap);
+            previewImageDialog = new PreViewImageDialog(this, imageBitmap);
         }
     }
 

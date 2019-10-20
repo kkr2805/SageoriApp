@@ -34,11 +34,20 @@ public class PublishListAdapter extends ArrayAdapter<PublishItem> {
         TextView machineIDView = (TextView) listItemView.findViewById(R.id.machine_id);
         machineIDView.setText(String.valueOf(currentPublishItem.MachineID));
 
+        TextView creditLabel = (TextView)listItemView.findViewById(R.id.creditLabel);
+        creditLabel.setText("Credit");
+
         TextView creditView = (TextView) listItemView.findViewById(R.id.credit);
         creditView.setText(String.valueOf(currentPublishItem.Credit));
 
+        TextView bankLabel = (TextView)listItemView.findViewById(R.id.bankLabel);
+        bankLabel.setText("Bank");
+
         TextView bankView = (TextView) listItemView.findViewById(R.id.bank);
         bankView.setText(String.valueOf(currentPublishItem.Bank));
+
+        TextView totalLabel = (TextView)listItemView.findViewById(R.id.totalLabel);
+        totalLabel.setText("합계");
 
         TextView totalView = (TextView) listItemView.findViewById(R.id.total);
         totalView.setText(String.valueOf(currentPublishItem.Credit + currentPublishItem.Bank));
