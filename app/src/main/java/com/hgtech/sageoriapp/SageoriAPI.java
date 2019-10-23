@@ -48,4 +48,22 @@ public interface SageoriAPI {
 
     @GET
     Call<ResponseBody> getImageFile(@Url String url);
+
+    @GET("/api/get_return_items")
+    Call<List<ReturnItem>> getReturnItems();
+
+    @POST("/api/create_return_item")
+    Call<SageoriResult> createReturnItem(@Body HashMap<String, String> param);
+
+    @POST("/api/update_return_item")
+    Call<SageoriResult> updateReturnItem(@Body HashMap<String, String> param);
+
+    @POST("/api/delete_return_item")
+    Call<SageoriResult> deleteReturnItem(@Body HashMap<String, String> param);
+
+    @GET("/api/get_score_items")
+    Call<List<ScoreItem>> getScoreItems();
+
+    @POST("/api/create_exchange_item")
+    Call<SageoriResult> createExchageItem(@Body HashMap<String, String> param);
 }

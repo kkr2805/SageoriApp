@@ -25,6 +25,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -80,6 +81,8 @@ public class PublishActivity extends AppCompatActivity
     File photoFile;
     private ImageView publishImageView;
     private PreViewImageDialog previewImageDialog;
+
+    CalendarView calendarView;
 
     private class CallbackGetPublishItems implements Callback<List<PublishItem>> {
         @Override
@@ -211,6 +214,10 @@ public class PublishActivity extends AppCompatActivity
         toolbar.setTitle("지급관리");
         setSupportActionBar(toolbar);
 
+        // calendar view
+        calendarView = (CalendarView)findViewById(R.id.calendarView);
+        calendarView.setVisibility(View.INVISIBLE);
+
         // SwipeRefreshLayout 설정
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
         swipeLayout.setOnRefreshListener(this);
@@ -245,7 +252,7 @@ public class PublishActivity extends AppCompatActivity
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu){
-        getMenuInflater().inflate(R.menu.title_menu, menu);
+        getMenuInflater().inflate(R.menu.publish_menu, menu);
         MenuItem loginItem = (MenuItem)menu.findItem(R.id.login);
         loginItem.setTitle("로그아웃");
 
@@ -259,12 +266,20 @@ public class PublishActivity extends AppCompatActivity
             }
         });
 
+        MenuItem searchDateButton = (MenuItem)menu.findItem(R.id.searchDate);
+        searchDateButton.setTitle("날짜검색");
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-
+        switch(item.getItemId())
+        {
+            case R.id.searchDate:
+                calendarView.setVisibility(View.VISIBLE);
+                break;
+        }
         return true;
     }
 
@@ -574,7 +589,7 @@ public class PublishActivity extends AppCompatActivity
 
                         @Override
                         public void onFailure(Call<SageoriResult> call, Throwable t) {
-                            Toast.makeText(getApplicationContext(), "회원정보 삭제실패", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getApplicationContext(), "지급정보 삭제실패", Toast.LENGTH_SHORT).show();
                             showProgressbar(false);
                             return;
                         }

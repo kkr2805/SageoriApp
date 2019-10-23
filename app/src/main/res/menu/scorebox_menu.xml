@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/menu_search"
+        android:title="search"
+        android:icon="@drawable/ic_search_white_24dp"
+        app:showAsAction="always"
+        />
+
+    <item android:id="@+id/new_item"
+        android:title="차감등록"
+        app:showAsAction="always" />
+
+    <group>
+        <item android:id="@+id/login"
+            android:title="로그인"/>
+        <item android:id="@+id/searchDate"
+            android:title="날짜검색"/>
+    </group>
+
+</menu>
