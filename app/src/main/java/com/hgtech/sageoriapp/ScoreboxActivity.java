@@ -23,6 +23,8 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.io.File;
@@ -41,7 +43,7 @@ public class ScoreboxActivity extends AppCompatActivity
         implements SwipeRefreshLayout.OnRefreshListener {
 
     private List<ScoreItem> dataList;
-    private ScoreListAdapter listAdapter;
+    private ExpandableScoreListAdapter listAdapter;
 
     private Spinner memberSpinner;
     private List<MemberItem> memberList;
@@ -55,9 +57,10 @@ public class ScoreboxActivity extends AppCompatActivity
         @Override
         public void onResponse(Call<List<ScoreItem>> call, Response<List<ScoreItem>> response){
             if(response.isSuccessful()){
+                listAdapter.notifyItemRangeRemoved(0, dataList.size());
                 dataList = response.body();
-                listAdapter.clear();
-                listAdapter.addAll(dataList);
+
+                listAdapter.notifyItemRangeInserted(0, dataList.size());
                 listAdapter.notifyDataSetChanged();
 
                 Log.d("Tag", "데이터 조회 완료");
@@ -137,19 +140,20 @@ public class ScoreboxActivity extends AppCompatActivity
         swipeLayout.setOnRefreshListener(this);
 
         // ListView 설정
-        ListView listView = (ListView)findViewById(R.id.listview);
+        RecyclerView listView = (RecyclerView)findViewById(R.id.listview);
+        listView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         dataList = new ArrayList<ScoreItem>();
 
-        listAdapter = new ScoreListAdapter(this, 0, dataList);
+        listAdapter = new ExpandableScoreListAdapter(dataList);
         listView.setAdapter(listAdapter);
-        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+        /*listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 showActionsDialog(position);
                 return false;
             }
-        });
+        });*/
 
         showProgressbar(true);
 

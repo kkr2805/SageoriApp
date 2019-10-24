@@ -3,6 +3,8 @@ package com.hgtech.sageoriapp;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class ScoreItem {
 
     @SerializedName("MEMBER_ID")
@@ -28,6 +30,8 @@ public class ScoreItem {
     @SerializedName("PUBLISH")
     @Expose
     public int Publish;
+
+    public List<ExchageItem> exchageItemList;
 
     public int getRemains() {
         return Score + Publish - Exchange - ReturnValue;
