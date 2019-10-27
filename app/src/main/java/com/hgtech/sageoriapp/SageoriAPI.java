@@ -64,6 +64,12 @@ public interface SageoriAPI {
     @GET("/api/get_score_items")
     Call<List<ScoreItem>> getScoreItems();
 
-    @POST("/api/create_exchange_item")
+    @GET("/api/get_exchanges")
+    Call<List<ExchageItem>> getExchageItems(@Query("id") int memberID);
+
+    @POST("/api/create_exchange")
     Call<SageoriResult> createExchageItem(@Body HashMap<String, String> param);
+
+    @POST("/api/update_exchange")
+    Call<SageoriResult> updateExchageItem(@Body HashMap<String, String> param);
 }

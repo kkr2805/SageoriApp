@@ -453,7 +453,7 @@ public class ReturnActivity extends AppCompatActivity
                     HashMap<String, String> postData = new HashMap<String, String>();
                     postData.put("ID", Integer.toString(dataList.get(position).ID));
 
-                    Call<SageoriResult> callDelete = api.deletePublishItem(postData);
+                    Call<SageoriResult> callDelete = api.deleteReturnItem(postData);
                     callDelete.enqueue(new Callback<SageoriResult>(){
                         @Override
                         public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){

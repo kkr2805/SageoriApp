@@ -24,7 +24,7 @@ public class ReturnItem {
     @Expose
     public String MemberName;
 
-    @SerializedName("RETURN")
+    @SerializedName("RETURN_POINT")
     @Expose
     public int Retrun;
 

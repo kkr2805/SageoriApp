@@ -42,6 +42,7 @@ import retrofit2.Response;
 public class ScoreboxActivity extends AppCompatActivity
         implements SwipeRefreshLayout.OnRefreshListener {
 
+    private RecyclerView listView;
     private List<ScoreItem> dataList;
     private ExpandableScoreListAdapter listAdapter;
 
@@ -57,13 +58,12 @@ public class ScoreboxActivity extends AppCompatActivity
         @Override
         public void onResponse(Call<List<ScoreItem>> call, Response<List<ScoreItem>> response){
             if(response.isSuccessful()){
-                listAdapter.notifyItemRangeRemoved(0, dataList.size());
                 dataList = response.body();
-
-                listAdapter.notifyItemRangeInserted(0, dataList.size());
+                listAdapter = new ExpandableScoreListAdapter(dataList);
+                listView.setAdapter(listAdapter);
                 listAdapter.notifyDataSetChanged();
 
-                Log.d("Tag", "데이터 조회 완료");
+                Log.d("Tag", "데이터 조회 완료 " + Integer.toString(dataList.size()));
                 Toast.makeText(getApplicationContext(), "데이터 조회 완료.", Toast.LENGTH_SHORT).show();
             }
 
@@ -140,16 +140,24 @@ public class ScoreboxActivity extends AppCompatActivity
         swipeLayout.setOnRefreshListener(this);
 
         // ListView 설정
-        RecyclerView listView = (RecyclerView)findViewById(R.id.listview);
+        listView = (RecyclerView)findViewById(R.id.listview);
         listView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         dataList = new ArrayList<ScoreItem>();
+        ScoreItem item = new ScoreItem();
+        item.MemberID = 1;
+        item.ReturnValue = 100;
+        item.Exchange = 100;
+        item.MemberName = " 김과올";
+        item.Publish = 300;
+        item.Score = 400;
+        dataList.add(item);
 
         listAdapter = new ExpandableScoreListAdapter(dataList);
         listView.setAdapter(listAdapter);
-        /*listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener(){
+        /*listView.setOnLongClickListener(new AdapterView.OnLongClickListener(){
             @Override
-            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            public boolean onLongClick(View view) {
                 showActionsDialog(position);
                 return false;
             }
@@ -306,9 +314,7 @@ public class ScoreboxActivity extends AppCompatActivity
         });
     }
 
-    private void showActionsDialog(final int position) {
-        CharSequence actionMenu[] = new CharSequence[]{ "수정하기", "삭제하기"};
-    }
+
 
     @Override
     public void onRefresh() {
@@ -336,5 +342,21 @@ public class ScoreboxActivity extends AppCompatActivity
             if(progressDialog != null)
                 progressDialog.dismiss();
         }
+    }
+
+    public void showActionsDialog(int position) {
+        CharSequence actionMenu[] = new CharSequence[]{"차감등록하기"};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("작업을 선택하세요.");
+        builder.setItems(actionMenu, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if (which == 1) {
+                    //showExchangeDialog(position);
+                }
+            }
+        });
+        builder.show();
     }
 }

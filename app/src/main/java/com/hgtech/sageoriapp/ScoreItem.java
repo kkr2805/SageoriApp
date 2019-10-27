@@ -19,7 +19,7 @@ public class ScoreItem {
     @Expose
     public int Score;
 
-    @SerializedName("REUTRN_VALUE")
+    @SerializedName("RETURN_POINT")
     @Expose
     public int ReturnValue;
 

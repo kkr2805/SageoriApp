@@ -16,7 +16,7 @@ public class ExchageItem {
     @Expose
     public String MemberName;
 
-    @SerializedName("EXCHAGE_VALUE")
+    @SerializedName("EXCHANGE")
     @Expose
     public int ExchageValue;
 
