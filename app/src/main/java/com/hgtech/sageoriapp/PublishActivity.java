@@ -215,8 +215,8 @@ public class PublishActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         // calendar view
-        calendarView = (CalendarView)findViewById(R.id.calendarView);
-        calendarView.setVisibility(View.INVISIBLE);
+        //calendarView = (CalendarView)findViewById(R.id.calendarView);
+        //calendarView.setVisibility(View.INVISIBLE);
 
         // SwipeRefreshLayout 설정
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);

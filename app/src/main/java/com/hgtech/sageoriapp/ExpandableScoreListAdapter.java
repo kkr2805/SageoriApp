@@ -17,9 +17,12 @@ import android.widget.Toast;
 import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -42,7 +45,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
             itemView.setOnLongClickListener(this);
         }
 
-        private void bindView(ScoreItem currentScoreItem, final int position){
+        private void bindView(final ScoreItem currentScoreItem){
 
             final View listItemView = this.itemView;
 
@@ -77,8 +80,24 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
                 @Override
                 public void onClick(View view) {
 
-                    Log.d("Tag", "ViewHolder setOnClickListener");
-                    showExchangeList(listItemView.getContext(), position);
+                Log.d("Tag", "ViewHolder setOnClickListener");
+                int exchangeListCount = 0;
+                int position = ExpandableScoreListAdapter.this.getPosition(currentScoreItem);
+
+                if(currentScoreItem.exchageItemList != null)
+                    exchangeListCount = currentScoreItem.exchageItemList.size();
+
+                if(exchangeListCount > 0) {
+
+                    currentScoreItem.exchageItemList = null;
+                    ExpandableScoreListAdapter.this.notifyItemRangeRemoved(position + 1, exchangeListCount);
+
+                } else {
+
+                    showExchangeList(listItemView.getContext(), currentScoreItem, position);
+
+                }
+
 
                 }
             });
@@ -86,8 +105,10 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
             listItemView.setOnLongClickListener(new View.OnLongClickListener(){
                 @Override
                 public boolean onLongClick(View view) {
-                    showActionsDialog(listItemView.getContext(), position);
+
+                    showActionsDialog(listItemView.getContext(), currentScoreItem);
                     return false;
+
                 }
             });
 
@@ -126,9 +147,23 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
 
         }
 
-        private void bindView(ExchageItem currentExchangeItem, final int position){
+        private void bindView(final ExchageItem currentExchangeItem){
 
             final View itemView = this.itemView;
+
+            itemView.setOnLongClickListener(new View.OnLongClickListener(){
+                @Override
+                public boolean onLongClick(View view) {
+
+                    showActionsDialog(itemView.getContext(), currentExchangeItem);
+                    return false;
+
+                }
+            });
+
+            TextView dateView = (TextView) itemView.findViewById(R.id.createdDate);
+            DateFormat format = new SimpleDateFormat("(YY.MkM.dd HH시 mm분)", Locale.KOREA);
+            dateView.setText(format.format(currentExchangeItem.Date));
 
             TextView labelView = (TextView) itemView.findViewById(R.id.exchangeLabel);
             labelView.setText("차감");
@@ -214,7 +249,8 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
             this.memberID = -1;
         }
 
-        CallbackGetMembers(boolean bShouldUpdate, int memberID) {
+        CallbackGetMembers(Context context, boolean bShouldUpdate, int memberID) {
+            this.context = context;
             this.bShouldUpdate = bShouldUpdate;
             this.memberID = memberID;
         }
@@ -238,7 +274,6 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
                     }
                 }
                 Log.d("Tag", "데이터 조회 완료");
-                Toast.makeText(context, "데이터 조회 완료.", Toast.LENGTH_SHORT).show();
             }
 
             ExpandableScoreListAdapter.this.showProgressbar(context,false);
@@ -248,7 +283,6 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
         public void onFailure(Call<List<MemberItem>> call, Throwable t) {
             String strErrMessage = new String("데이터 조회 실패." );
             strErrMessage += t.getMessage();
-            Toast.makeText(context, strErrMessage, Toast.LENGTH_SHORT).show();
             ExpandableScoreListAdapter.this.showProgressbar(context,false);
         }
     }
@@ -300,14 +334,14 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
         switch (type) {
             case SCORE_ITEM:
                 ScoreItem scoreItem = getScoreItem(position);
-                viewHolder.bindView(scoreItem, position);
+                viewHolder.bindView(scoreItem);
 
                 Log.d("Tag", "onBindViewHoler " + Integer.toString(position));
 
                 break;
             case EXCHANGE_ITEM:
                 ExchageItem exchageItem = getExchangeItem(position);
-                viewHolder.bindView(exchageItem, position);
+                viewHolder.bindView(exchageItem);
 
                 break;
         }
@@ -396,6 +430,78 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
         return null;
     }
 
+    private int getPosition(ScoreItem scoreItem) {
+
+        int k = 0;
+        for(ScoreItem item: scoreItemList)
+        {
+            int subItemCount = 0;
+
+            if(item.exchageItemList != null) {
+                subItemCount = item.exchageItemList.size();
+            }
+
+            if(item == scoreItem)
+                return k;
+
+            k = k + 1 + subItemCount;
+        }
+
+        return -1;
+    }
+
+    private int getPosition(ExchageItem exchageItem) {
+
+        int k = 0;
+        for(ScoreItem item: scoreItemList)
+        {
+            int subItemCount = 0;
+
+            if(item.exchageItemList != null) {
+                subItemCount = item.exchageItemList.size();
+
+                for (ExchageItem subItem : item.exchageItemList) {
+                    if(subItem == exchageItem)
+                        return k;
+
+                    k++;
+                }
+
+            }
+
+            k++;
+        }
+
+        return -1;
+    }
+
+    private ScoreItem getParentScoreItem(ExchageItem exchageItem) {
+
+        int n = 0;
+        int k = 0;
+        for(ScoreItem item: scoreItemList)
+        {
+            int subItemCount = 0;
+
+            if(item.exchageItemList != null) {
+                subItemCount = item.exchageItemList.size();
+
+                for (ExchageItem subItem : item.exchageItemList) {
+                    if(subItem == exchageItem)
+                        return item;
+
+                    k++;
+                }
+
+            }
+
+            k++;
+            n = n + 1 + subItemCount;
+        }
+
+        return null;
+    }
+
     public void showProgressbar(Context context, boolean bShow) {
         if(bShow) {
             progressDialog = new ProgressDialog(context);
@@ -412,11 +518,9 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
         }
     }
 
-    private void showExchangeList(final Context context, final int position){
+    private void showExchangeList(final Context context, ScoreItem scoreItem, int position){
 
         Log.d("Tag", "showExchangeList");
-
-        ScoreItem scoreItem = getScoreItem(position);
 
         SageoriAPI api = SageoriClient.getAPI();
         Call<List<ExchageItem>> callExchanges = api.getExchageItems(scoreItem.MemberID);
@@ -430,9 +534,8 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
 
     }
 
-    private void showActionsDialog(final Context context, final int position) {
+    private void showActionsDialog(final Context context, final ScoreItem scoreItem) {
         CharSequence actionMenu[] = new CharSequence[]{ "차감등록하기" };
-        final int type = getItemViewType(position);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("작업을 선택하세요.");
@@ -442,15 +545,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                if(which == 0){
-                    if(type == SCORE_ITEM)
-                        showInsertExchangeDialog(context, position);
-                    else {
-                        ExchageItem exchageItem = getExchangeItem(position);
-                        showUpdateExchangeDialog(context, exchageItem, position);
-                    }
-
-                }
+                showInsertExchangeDialog(context, scoreItem);
 
             }
 
@@ -459,7 +554,77 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
         builder.show();
     }
 
-    private void showInsertExchangeDialog(final Context context, final int position) {
+    private void showActionsDialog(final Context context, final ExchageItem exchageItem) {
+        CharSequence actionMenu[] = new CharSequence[]{ "차감수정하기", "차감삭제하기" };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+        builder.setTitle("작업을 선택하세요.");
+
+        builder.setItems(actionMenu, new DialogInterface.OnClickListener(){
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                if(which == 0){
+
+                    showUpdateExchangeDialog(context, exchageItem);
+
+                } else if (which == 1) {
+
+                    showProgressbar( context, true);
+                    final SageoriAPI api = SageoriClient.getAPI();
+
+                    HashMap<String, String> postData = new HashMap<String, String>();
+                    postData.put("ID", Integer.toString(exchageItem.ID));
+
+                    Call<SageoriResult> callDelete = api.deleteExchangeItem(postData);
+                    callDelete.enqueue(new Callback<SageoriResult>(){
+                        @Override
+                        public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
+                            if(response.isSuccessful() && response.body().isSuccess()){
+                                Toast.makeText(context, "삭제되었습니다", Toast.LENGTH_SHORT).show();
+
+                                int position = getPosition(exchageItem);
+                                ScoreItem parent = getParentScoreItem(exchageItem);
+                                int parentPosition = getPosition(parent);
+
+                                int subposition = 0;
+                                for (ExchageItem item: parent.exchageItemList){
+                                    if(item == exchageItem)
+                                        break;
+
+                                    subposition++;
+                                }
+
+                                parent.exchageItemList.remove(subposition);
+                                ExpandableScoreListAdapter.this.notifyItemRemoved(position);
+                                ExpandableScoreListAdapter.this.notifyItemChanged(parentPosition);
+                                ExpandableScoreListAdapter.this.notifyDataSetChanged();
+
+                                showProgressbar(context, false);
+
+                                return;
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<SageoriResult> call, Throwable t) {
+                            Toast.makeText(context, "회수정보 삭제실패", Toast.LENGTH_SHORT).show();
+                            showProgressbar(context, false);
+                            return;
+                        }
+                    });
+
+                }
+
+
+            }
+
+        });
+
+        builder.show();
+    }
+
+    private void showInsertExchangeDialog(final Context context, final ScoreItem scoreItem) {
 
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(context);
         View view = layoutInflaterAndroid.inflate(R.layout.exchange_dialog, null);
@@ -499,7 +664,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
         SageoriAPI api = SageoriClient.getAPI();
         Call<List<MemberItem>> callMembers = api.getMembers();
         ExpandableScoreListAdapter.CallbackGetMembers callbackMembers;
-        callbackMembers = new ExpandableScoreListAdapter.CallbackGetMembers(context);
+        callbackMembers = new ExpandableScoreListAdapter.CallbackGetMembers(context, true, scoreItem.MemberID);
         callMembers.enqueue(callbackMembers);
 
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
@@ -541,9 +706,18 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
                         if(response.isSuccessful() && response.body().isSuccess()){
                             Toast.makeText(context, "등록되었습니다", Toast.LENGTH_SHORT).show();
 
-                            // 리스트 최신내용으로 업데이트
-                            Call<List<ReturnItem>> callPublishItems = api.getReturnItems();
-                            //callPublishItems.enqueue(new ReturnActivity.CallbackGetReturnItems());
+                            int position = getPosition(scoreItem);
+
+                            int exchangeListCount = 0;
+                            if(scoreItem.exchageItemList != null)
+                                exchangeListCount = scoreItem.exchageItemList.size();
+
+                            scoreItem.exchageItemList = null;
+
+                            if(exchangeListCount > 0)
+                                ExpandableScoreListAdapter.this.notifyItemRangeRemoved(position + 1, exchangeListCount);
+
+                            showExchangeList(context, scoreItem, position);
 
                             showProgressbar(context,false);
                             return;
@@ -565,7 +739,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
 
     }
 
-    private void showUpdateExchangeDialog(final Context context, final ExchageItem exchageItem, final int position) {
+    private void showUpdateExchangeDialog(final Context context, final ExchageItem exchageItem) {
 
         LayoutInflater layoutInflaterAndroid = LayoutInflater.from(context);
         View view = layoutInflaterAndroid.inflate(R.layout.exchange_dialog, null);
@@ -607,7 +781,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
         SageoriAPI api = SageoriClient.getAPI();
         Call<List<MemberItem>> callMembers = api.getMembers();
         ExpandableScoreListAdapter.CallbackGetMembers callbackMembers;
-        callbackMembers = new ExpandableScoreListAdapter.CallbackGetMembers(true, exchageItem.MemberID);
+        callbackMembers = new ExpandableScoreListAdapter.CallbackGetMembers(context, true, exchageItem.MemberID);
         callMembers.enqueue(callbackMembers);
 
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
@@ -616,7 +790,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
 
                 EditText editExchange = (EditText)alertDialog.findViewById(R.id.editTextExchange);
 
-                String strExchange = editExchange.getText().toString();
+                final String strExchange = editExchange.getText().toString();
 
                 if(memberSpinner.getSelectedItemPosition() < 0) {
                     Toast.makeText(context, "회원이름을 선택하세요.", Toast.LENGTH_SHORT).show();
@@ -635,6 +809,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
 
                 String memberID = Integer.toString(memberList.get(memberSpinnerPos).ID);
 
+                postData.put("ID", Integer.toString(exchageItem.ID));
                 postData.put("MemberID", memberID);
                 postData.put("Exchange", strExchange);
 
@@ -643,16 +818,22 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
 
                 String ID = Integer.toString(exchageItem.ID);
                 postData.put("ID", ID);
-                Call<SageoriResult> callUpdate = api.updateReturnItem(postData);
+                Call<SageoriResult> callUpdate = api.updateExchageItem(postData);
                 callUpdate.enqueue(new Callback<SageoriResult>(){
                     @Override
                     public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
                         if(response.isSuccessful() && response.body().isSuccess()){
                             Toast.makeText(context, "수정되었습니다", Toast.LENGTH_SHORT).show();
 
-                            // 리스트 최신내용으로 업데이트
-                            Call<List<ReturnItem>> callReturnItems = api.getReturnItems();
-                            //callReturnItems.enqueue(new ScoreboxActivity.CallbackGetScoreItems());
+                            exchageItem.ExchageValue = Integer.parseInt(strExchange);
+                            int position = getPosition(exchageItem);
+
+                            ScoreItem parent = getParentScoreItem(exchageItem);
+                            int parentPosition = getPosition(parent);
+
+                            ExpandableScoreListAdapter.this.notifyItemChanged(position);
+                            ExpandableScoreListAdapter.this.notifyItemChanged(parentPosition);
+                            ExpandableScoreListAdapter.this.notifyDataSetChanged();
 
                             showProgressbar(context,false);
                             return;

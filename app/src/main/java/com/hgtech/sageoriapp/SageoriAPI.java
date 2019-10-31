@@ -72,4 +72,7 @@ public interface SageoriAPI {
 
     @POST("/api/update_exchange")
     Call<SageoriResult> updateExchageItem(@Body HashMap<String, String> param);
+
+    @POST("/api/delete_exchange")
+    Call<SageoriResult> deleteExchangeItem(@Body HashMap<String, String> param);
 }

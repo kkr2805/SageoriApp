@@ -36,6 +36,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textStart"
                 android:textSize="15sp"
+                android:textColor="@color/labelColor"
                 tools:text="선물" />
 
             <TextView
@@ -45,6 +46,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textEnd"
                 android:textSize="15sp"
+                android:textColor="@color/scoreColor"
                 tools:text="100" />
 
             <TextView
@@ -72,6 +74,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textStart"
                 android:textSize="15sp"
+                android:textColor="@color/labelColor"
                 tools:text="차감" />
 
 
@@ -82,6 +85,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textEnd"
                 android:textSize="15sp"
+                android:textColor="@color/exchangeColor"
                 tools:text="100" />
 
             <TextView
@@ -108,6 +112,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textStart"
                 android:textSize="15sp"
+                android:textColor="@color/labelColor"
                 tools:text="회수" />
 
 
@@ -118,6 +123,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textEnd"
                 android:textSize="15sp"
+                android:textColor="@color/returnColor"
                 tools:text="200" />
 
             <TextView
@@ -144,6 +150,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textStart"
                 android:textSize="15sp"
+                android:textColor="@color/labelColor"
                 tools:text="지급" />
 
 
@@ -154,6 +161,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textEnd"
                 android:textSize="15sp"
+                android:textColor="@color/publishColor"
                 tools:text="200" />
 
             <TextView

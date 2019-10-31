@@ -366,8 +366,8 @@ public class ReturnActivity extends AppCompatActivity
                 postData.put("MachineID2", machineID2);
                 postData.put("MemberID", memberID);
                 postData.put("Return", strReturn);
-                postData.put("Service", strService);
-                postData.put("OnePone", strOnePone);
+                postData.put("Service", strService.isEmpty() ? "0" : strService);
+                postData.put("OnePone", strOnePone.isEmpty() ? "0" : strOnePone);
 
 
                 showProgressbar(true);

@@ -46,6 +46,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textStart"
                 android:textSize="15sp"
+                android:textColor="@color/labelColor"
                 tools:text="Credit" />
 
             <TextView
@@ -55,6 +56,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textEnd"
                 android:textSize="15sp"
+                android:textColor="@color/bankColor"
                 tools:text="100" />
 
             <TextView
@@ -82,6 +84,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textStart"
                 android:textSize="15sp"
+                android:textColor="@color/labelColor"
                 tools:text="Bank" />
 
 
@@ -92,6 +95,7 @@
                 android:layout_weight="3"
                 android:textAlignment="textEnd"
                 android:textSize="15sp"
+                android:textColor="@color/creditColor"
                 tools:text="200" />
 
             <TextView
@@ -128,6 +132,7 @@
                 android:textAlignment="textStart"
                 android:textSize="15sp"
                 android:textStyle="bold"
+                android:textColor="@color/labelColor"
                 tools:text="합계" />
 
             <TextView

@@ -4,7 +4,7 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 public class ExchageItem {
-    @SerializedName("EXCHAGE_ID")
+    @SerializedName("EXCHANGE_ID")
     @Expose
     public int ID;
 
