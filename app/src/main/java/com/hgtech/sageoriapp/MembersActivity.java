@@ -1,6 +1,8 @@
 package com.hgtech.sageoriapp;
 
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -297,6 +299,10 @@ public class MembersActivity extends AppCompatActivity
                             return;
                         }
                     });
+                } else if(which == 2) {
+
+                    startActivity(new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + dataList.get(position).HP)));
+
                 }
             }
         });

@@ -9,7 +9,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#E0F7FA"
+        android:background="#15FFFDE7"
         android:orientation="vertical"
         tools:layout_editor_absoluteX="152dp"
         tools:layout_editor_absoluteY="314dp">
@@ -20,7 +20,10 @@
             android:layout_marginTop="100dp"
             android:text="사거리 성인 오락실"
             android:textAlignment="center"
-            android:textSize="35dp" />
+            android:textAllCaps="false"
+            android:textColor="#463D42"
+            android:textSize="30sp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/button1"
@@ -31,7 +34,7 @@
             android:text="회원관리"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:backgroundTint="#B7080C0E" />
+            app:backgroundTint="#1565C0" />
 
         <Button
             android:id="@+id/button2"
@@ -42,7 +45,7 @@
             android:text="지급관리"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:backgroundTint="#B7080C0E" />
+            app:backgroundTint="#1565C0" />
 
         <Button
             android:id="@+id/button3"
@@ -53,7 +56,7 @@
             android:text="회수관리"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:backgroundTint="#B7080C0E" />
+            app:backgroundTint="#1565C0" />
 
         <Button
             android:id="@+id/button4"
@@ -64,7 +67,7 @@
             android:text="점수관리"
             android:textSize="18sp"
             android:textStyle="bold"
-            app:backgroundTint="#B7080C0E" />
+            app:backgroundTint="#1565C0" />
 
         <TextView
             android:layout_width="match_parent"
@@ -72,7 +75,9 @@
             android:layout_marginTop="80dp"
             android:text="무등 도서관 사거리"
             android:textAlignment="center"
-            android:textSize="20dp" />
+            android:textColor="#060607"
+            android:textSize="18sp"
+            android:textStyle="bold" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

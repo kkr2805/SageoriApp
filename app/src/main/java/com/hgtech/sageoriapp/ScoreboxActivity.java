@@ -144,14 +144,6 @@ public class ScoreboxActivity extends AppCompatActivity
         listView.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         dataList = new ArrayList<ScoreItem>();
-        ScoreItem item = new ScoreItem();
-        item.MemberID = 1;
-        item.ReturnValue = 100;
-        item.Exchange = 100;
-        item.MemberName = " 김과올";
-        item.Publish = 300;
-        item.Score = 400;
-        dataList.add(item);
 
         listAdapter = new ExpandableScoreListAdapter(dataList);
         listView.setAdapter(listAdapter);

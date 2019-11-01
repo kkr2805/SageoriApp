@@ -162,7 +162,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
             });
 
             TextView dateView = (TextView) itemView.findViewById(R.id.createdDate);
-            DateFormat format = new SimpleDateFormat("(YY.MkM.dd HH시 mm분)", Locale.KOREA);
+            DateFormat format = new SimpleDateFormat("(YY.MM.dd HH시 mm분)", Locale.KOREA);
             dateView.setText(format.format(currentExchangeItem.Date));
 
             TextView labelView = (TextView) itemView.findViewById(R.id.exchangeLabel);
@@ -213,8 +213,12 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
                     Log.d("Tag", "onResponse exchage list size: " + Integer.toString(exchageItemList.size()));
                     Log.d("Tag", "onResponse notifyItemRangeInserted: " + Integer.toString(position + 1) + ", " +
                             Integer.toString(position + 1 + exchageItemList.size()));
+
+                    scoreItem.updateExchange();
+
+                    ExpandableScoreListAdapter.this.notifyItemChanged(position);
                     ExpandableScoreListAdapter.this.notifyItemRangeInserted(position + 1, exchageItemList.size());
-                    //ExpandableScoreListAdapter.this.notifyDataSetChanged();
+                    ExpandableScoreListAdapter.this.notifyDataSetChanged();
                 }
 
 
@@ -596,6 +600,8 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
                                 }
 
                                 parent.exchageItemList.remove(subposition);
+                                parent.updateExchange();
+
                                 ExpandableScoreListAdapter.this.notifyItemRemoved(position);
                                 ExpandableScoreListAdapter.this.notifyItemChanged(parentPosition);
                                 ExpandableScoreListAdapter.this.notifyDataSetChanged();
@@ -608,7 +614,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
 
                         @Override
                         public void onFailure(Call<SageoriResult> call, Throwable t) {
-                            Toast.makeText(context, "회수정보 삭제실패", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "차감정보 삭제실패", Toast.LENGTH_SHORT).show();
                             showProgressbar(context, false);
                             return;
                         }
@@ -726,7 +732,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
 
                     @Override
                     public void onFailure(Call<SageoriResult> call, Throwable t) {
-                        Toast.makeText(context, "지급정보 등록실패", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "차감정보 등록실패", Toast.LENGTH_SHORT).show();
                         showProgressbar(context,false);
                         return;
                     }
@@ -798,7 +804,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
                 }
 
                 if(strExchange.length() == 0) {
-                    Toast.makeText(context, "회수를 입력하세요.", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(context, "차감을 입력하세요.", Toast.LENGTH_SHORT).show();
                     editExchange.requestFocus();
                     return;
                 }
@@ -826,9 +832,11 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
                             Toast.makeText(context, "수정되었습니다", Toast.LENGTH_SHORT).show();
 
                             exchageItem.ExchageValue = Integer.parseInt(strExchange);
-                            int position = getPosition(exchageItem);
 
                             ScoreItem parent = getParentScoreItem(exchageItem);
+                            parent.updateExchange();
+
+                            int position = getPosition(exchageItem);
                             int parentPosition = getPosition(parent);
 
                             ExpandableScoreListAdapter.this.notifyItemChanged(position);
@@ -838,7 +846,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
                             showProgressbar(context,false);
                             return;
                         } else {
-                            Toast.makeText(context, "지급정보 수정실패", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "차정보 수정실패", Toast.LENGTH_SHORT).show();
                             showProgressbar(context,false);
                             return;
                         }
@@ -846,7 +854,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
 
                     @Override
                     public void onFailure(Call<SageoriResult> call, Throwable t) {
-                        Toast.makeText(context, "지급정보 수정실패", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "차감정보 수정실패", Toast.LENGTH_SHORT).show();
                         showProgressbar(context, false);
                         return;
                     }

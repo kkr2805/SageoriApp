@@ -36,4 +36,19 @@ public class ScoreItem {
     public int getRemains() {
         return Score + Publish - Exchange - ReturnValue;
     }
+
+    public void updateExchange() {
+
+        // Exchange Item 이 쿼리되었을 때에만 update 한다.
+        // 쿼리되지 않은 상태에서는 서버에서 계산한 Score 값을 사용한다.
+        if(exchageItemList.size() > 0) {
+            int sum = 0;
+            for (ExchageItem item: exchageItemList) {
+                sum = sum + item.ExchageValue;
+            }
+
+            this.Exchange = sum;
+        }
+
+    }
 }
