@@ -5,27 +5,74 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class PublishListAdapter extends ArrayAdapter<PublishItem> {
+public class PublishListAdapter extends ArrayAdapter<PublishItem>
+                                implements Filterable {
+
+    private class ListFilter extends Filter {
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            FilterResults results = new FilterResults() ;
+
+            if (constraint == null || constraint.length() == 0) {
+                results.values = publishItemList;
+                results.count = publishItemList.size() ;
+            } else {
+                List<PublishItem> itemList = new ArrayList<PublishItem>() ;
+
+                for (PublishItem item : publishItemList) {
+                    if (item.MemberName.toUpperCase().contains(constraint.toString().toUpperCase()))
+                    {
+                        itemList.add(item);
+                    }
+                }
+
+                results.values = itemList ;
+                results.count = itemList.size() ;
+            }
+            return results;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+
+            // update listview by filtered data list.
+            filteredItemList = (List<PublishItem>) results.values ;
+
+            // notify
+            if (results.count > 0) {
+                notifyDataSetChanged() ;
+            } else {
+                notifyDataSetInvalidated() ;
+            }
+        }
+    }
 
     List<PublishItem> publishItemList;
+    List<PublishItem> filteredItemList = publishItemList;
+    Filter listFilter;
 
     public PublishListAdapter(Context context, int resource, List<PublishItem> objects) {
         super(context, resource, objects);
 
         publishItemList = objects;
+        filteredItemList = objects;
     }
 
     @NotNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View listItemView = convertView;
-        PublishItem currentPublishItem = publishItemList.get(position);
+        PublishItem currentPublishItem = filteredItemList.get(position);
 
         if(listItemView == null){
             listItemView = LayoutInflater.from(getContext()).inflate(R.layout.publish_item, parent, false);
@@ -57,5 +104,21 @@ public class PublishListAdapter extends ArrayAdapter<PublishItem> {
 
         return listItemView;
     }
+
+    // Adapter에 사용되는 데이터의 개수를 리턴. : 필수 구현
+    @Override
+    public int getCount() {
+        return filteredItemList.size() ;
+    }
+
+    @Override
+    public Filter getFilter() {
+        if (listFilter == null) {
+            listFilter = new ListFilter() ;
+        }
+
+        return listFilter ;
+    }
+
 
 }

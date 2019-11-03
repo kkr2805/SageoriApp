@@ -1,5 +1,6 @@
 package com.hgtech.sageoriapp;
 
+import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
@@ -21,14 +22,19 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.CheckBox;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,9 +52,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import okhttp3.MediaType;
 import okhttp3.RequestBody;
@@ -63,6 +71,7 @@ public class PublishActivity extends AppCompatActivity
     static final int REQUEST_IMAGE_CAPTURE = 1;
     static final int REQUEST_TAKE_PHOTO = 1;
     static final int RESULT_LOAD_IMG = 2;
+    static final int SEARCH_DIALOG = 3;
 
     private Spinner machineSpinner;
     private List<Integer> machineList;
@@ -82,7 +91,16 @@ public class PublishActivity extends AppCompatActivity
     private ImageView publishImageView;
     private PreViewImageDialog previewImageDialog;
 
-    CalendarView calendarView;
+    SearchView searchView;
+
+    SearchParams searchParams;
+    EditText editDate;
+    DatePickerDialog.OnDateSetListener datePickerListener = new DatePickerDialog.OnDateSetListener(){
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+            editDate.setText(year + "." + (monthOfYear + 1) + "." + dayOfMonth);
+        }
+    };
 
     private class CallbackGetPublishItems implements Callback<List<PublishItem>> {
         @Override
@@ -214,10 +232,6 @@ public class PublishActivity extends AppCompatActivity
         toolbar.setTitle("지급관리");
         setSupportActionBar(toolbar);
 
-        // calendar view
-        //calendarView = (CalendarView)findViewById(R.id.calendarView);
-        //calendarView.setVisibility(View.INVISIBLE);
-
         // SwipeRefreshLayout 설정
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
         swipeLayout.setOnRefreshListener(this);
@@ -226,9 +240,6 @@ public class PublishActivity extends AppCompatActivity
         ListView listView = (ListView)findViewById(R.id.listview);
         View headerView = getLayoutInflater().inflate(R.layout.publish_header, null, false);
         //listView.addHeaderView(headerView);
-
-
-
 
         dataList = new ArrayList<PublishItem>();
 
@@ -266,8 +277,37 @@ public class PublishActivity extends AppCompatActivity
             }
         });
 
-        MenuItem searchDateButton = (MenuItem)menu.findItem(R.id.searchDate);
-        searchDateButton.setTitle("날짜검색");
+        MenuItem searchDateButton = (MenuItem)menu.findItem(R.id.search);
+        searchDateButton.setTitle("검색");
+        searchDateButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+
+                //Intent intent = new Intent(getApplicationContext(), SearchActivity.class);
+                //intent.putExtra("searchParams", searchParams);
+                //startActivityForResult(intent, SEARCH_DIALOG);
+
+                showSearchDialog();
+
+                return false;
+            }
+        });
+
+        MenuItem searchItem = menu.findItem(R.id.actionSearch);
+        searchView = (SearchView) searchItem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener(){
+
+            @Override
+            public boolean onQueryTextSubmit(String s) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String s) {
+                listAdapter.getFilter().filter(s);
+                return true;
+            }
+        });
 
         return true;
     }
@@ -277,7 +317,7 @@ public class PublishActivity extends AppCompatActivity
         switch(item.getItemId())
         {
             case R.id.searchDate:
-                calendarView.setVisibility(View.VISIBLE);
+                //calendarView.setVisibility(View.VISIBLE);
                 break;
         }
         return true;
@@ -523,6 +563,141 @@ public class PublishActivity extends AppCompatActivity
         });
     }
 
+    private void showSearchDialog() {
+        LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getApplicationContext());
+        final View view = layoutInflaterAndroid.inflate(R.layout.search_dialog, null);
+
+        AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(PublishActivity.this);
+        alertDialogBuilderUserInput.setView(view);
+
+
+        // machine spinner
+        machineSpinner = (Spinner)view.findViewById(R.id.spinnerMachine);
+        machineList = new ArrayList<>();
+        machineListAdapter = new ArrayAdapter<Integer>(view.getContext(), android.R.layout.simple_spinner_item, machineList);
+        machineSpinner.setAdapter(machineListAdapter);
+
+        // member spinner
+        memberSpinner = (Spinner)view.findViewById(R.id.spinnerMember);
+        memberList = new ArrayList<>();
+        memberSpinnerAdapter = new MemberSpinnerAdapter(view.getContext(), android.R.layout.simple_spinner_item, memberList);
+        memberSpinner.setAdapter(memberSpinnerAdapter);
+
+        // date picker
+        editDate = (EditText)view.findViewById(R.id.editTextDate);
+        editDate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Date today = new Date();
+                Calendar calendar = Calendar.getInstance(Locale.KOREA);
+                calendar.setTime(today);
+
+                // DatePickerDialog
+                DatePickerDialog dialog = new DatePickerDialog(PublishActivity.this, datePickerListener
+                        , calendar.get(Calendar.YEAR)
+                        , calendar.get(Calendar.MONTH)
+                        , calendar.get(Calendar.DAY_OF_MONTH));
+
+                dialog.show();
+            }
+
+        });
+
+        editDate.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                v.onTouchEvent(event);
+                InputMethodManager imm = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null){
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+                return true;
+            }
+        });
+
+
+        TextView dialogTitle = (TextView)view.findViewById(R.id.dialogTitle);
+        dialogTitle.setText("검색");
+
+        alertDialogBuilderUserInput
+                .setCancelable(false)
+                .setPositiveButton("검색", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogBox, int id) {
+                    }
+                })
+                .setNegativeButton("취소",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogBox, int id) {
+                                dialogBox.cancel();
+                            }
+                        });
+
+        final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
+        alertDialog.show();
+
+        // Retrofit API
+        SageoriAPI api = SageoriClient.getAPI();
+        Call<List<MemberItem>> callMembers = api.getMembers();
+        CallbackGetMembers callbackMembers;
+        callbackMembers = new CallbackGetMembers();
+        callMembers.enqueue(callbackMembers);
+        Call<List<Integer>> callMachines = api.getMachines();
+        CallbackGetMachines callbackMachines;
+        callbackMachines = new CallbackGetMachines();
+        callMachines.enqueue(callbackMachines);
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                CheckBox checkBoxMachine = (CheckBox) alertDialog.findViewById(R.id.checkBoxMachine);
+                CheckBox checkBoxMember = (CheckBox) alertDialog.findViewById(R.id.checkBoxMember);
+                CheckBox checkBoxDate = (CheckBox) alertDialog.findViewById(R.id.checkBoxDate);
+
+                String strDate = editDate.getText().toString();
+
+                if(checkBoxMachine.isChecked() && machineSpinner.getSelectedItemPosition() < 0) {
+                    Toast.makeText(getApplicationContext(), "기계번호를 선택하세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(checkBoxMember.isChecked() && memberSpinner.getSelectedItemPosition() < 0) {
+                    Toast.makeText(getApplicationContext(), "회원이름을 선택하세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(checkBoxDate.isChecked() && strDate.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "날짜를 선택하세요.", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                int machineSpinnerPos = machineSpinner.getSelectedItemPosition();
+                int memberSpinnerPos = memberSpinner.getSelectedItemPosition();
+
+                HashMap<String, String> getData = new HashMap<String, String>();
+
+                if(checkBoxMachine.isChecked())
+                    getData.put("MachineID", Integer.toString(machineList.get(machineSpinnerPos)));
+
+                if(checkBoxMember.isChecked())
+                    getData.put("MemberID", Integer.toString(memberList.get(memberSpinnerPos).ID));
+
+                if(checkBoxDate.isChecked())
+                    getData.put("Date", strDate);
+
+                showProgressbar(true);
+                final SageoriAPI api = SageoriClient.getAPI();
+
+                Call<List<PublishItem>> callPost = api.getPublishes(getData);
+                callPost.enqueue(new CallbackGetPublishItems());
+
+                alertDialog.dismiss();
+            }
+        });
+    }
+
     private void showActionsDialog(final int position) {
         CharSequence actionMenu[] = new CharSequence[]{"사진보기", "수정하기", "삭제하기"};
 
@@ -677,6 +852,12 @@ public class PublishActivity extends AppCompatActivity
 
             publishImageView.setImageBitmap(imageBitmap);
             previewImageDialog = new PreViewImageDialog(this, imageBitmap);
+
+        }else if(requestCode == SEARCH_DIALOG && resultCode == RESULT_OK) {
+
+            Bundle extraData = data.getExtras();
+            searchParams = (SearchParams) extraData.get("searchParams");
+
         }
     }
 

@@ -11,6 +11,7 @@ import retrofit2.http.Part;
 import retrofit2.http.PartMap;
 import retrofit2.http.Query;
 import retrofit2.http.FieldMap;
+import retrofit2.http.QueryMap;
 import retrofit2.http.Url;
 
 import java.util.List;
@@ -34,6 +35,9 @@ public interface SageoriAPI {
 
     @GET("/api/get_publishes")
     Call<List<PublishItem>> getPublishes();
+
+    @GET("/api/get_publishes")
+    Call<List<PublishItem>> getPublishes(@QueryMap HashMap<String, String> param);
 
     @Multipart
     @POST("/api/create_publish") 
