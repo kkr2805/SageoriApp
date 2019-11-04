@@ -11,8 +11,10 @@ import android.widget.TextView;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 public class PublishListAdapter extends ArrayAdapter<PublishItem>
                                 implements Filterable {
@@ -101,6 +103,9 @@ public class PublishListAdapter extends ArrayAdapter<PublishItem>
 
         TextView memberNameView = (TextView) listItemView.findViewById(R.id.member_name);
         memberNameView.setText(currentPublishItem.MemberName);
+
+        TextView createdDate = (TextView)listItemView.findViewById(R.id.CreatedDate);
+        createdDate.setText(new SimpleDateFormat("yyyy.MM.dd hh시 mm분").format(currentPublishItem.Date));
 
         return listItemView;
     }

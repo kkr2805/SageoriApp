@@ -30,6 +30,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -50,6 +51,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -95,12 +97,22 @@ public class PublishActivity extends AppCompatActivity
 
     SearchParams searchParams;
     EditText editDate;
-    DatePickerDialog.OnDateSetListener datePickerListener = new DatePickerDialog.OnDateSetListener(){
-        @Override
-        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-            editDate.setText(year + "." + (monthOfYear + 1) + "." + dayOfMonth);
+    EditText editDateStart;
+    EditText editDateEnd;
+
+    private class DatePickerListener implements DatePickerDialog.OnDateSetListener {
+
+        EditText editDate;
+
+        public DatePickerListener(EditText editDate) {
+            this.editDate = editDate;
         }
-    };
+
+        @Override
+        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth){
+            this.editDate.setText(year + "." + (monthOfYear + 1) + "." + dayOfMonth);
+        }
+    }
 
     private class CallbackGetPublishItems implements Callback<List<PublishItem>> {
         @Override
@@ -236,9 +248,12 @@ public class PublishActivity extends AppCompatActivity
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
         swipeLayout.setOnRefreshListener(this);
 
+        // 검색조건
+        searchParams = new SearchParams();
+
         // ListView 설정
         ListView listView = (ListView)findViewById(R.id.listview);
-        View headerView = getLayoutInflater().inflate(R.layout.publish_header, null, false);
+        //View headerView = getLayoutInflater().inflate(R.layout.publish_header, null, false);
         //listView.addHeaderView(headerView);
 
         dataList = new ArrayList<PublishItem>();
@@ -571,11 +586,21 @@ public class PublishActivity extends AppCompatActivity
         alertDialogBuilderUserInput.setView(view);
 
 
+        CheckBox checkBoxMachine = (CheckBox) view.findViewById(R.id.checkBoxMachine);
+        if(searchParams.checkMachineID){
+            checkBoxMachine.setChecked(true);
+        }
+
         // machine spinner
         machineSpinner = (Spinner)view.findViewById(R.id.spinnerMachine);
         machineList = new ArrayList<>();
         machineListAdapter = new ArrayAdapter<Integer>(view.getContext(), android.R.layout.simple_spinner_item, machineList);
         machineSpinner.setAdapter(machineListAdapter);
+
+        CheckBox checkBoxMember = (CheckBox) view.findViewById(R.id.checkBoxMember);
+        if(searchParams.checkMemberID){
+            checkBoxMember.setChecked(true);
+        }
 
         // member spinner
         memberSpinner = (Spinner)view.findViewById(R.id.spinnerMember);
@@ -583,7 +608,7 @@ public class PublishActivity extends AppCompatActivity
         memberSpinnerAdapter = new MemberSpinnerAdapter(view.getContext(), android.R.layout.simple_spinner_item, memberList);
         memberSpinner.setAdapter(memberSpinnerAdapter);
 
-        // date picker
+        // date picker (날짜 검색)
         editDate = (EditText)view.findViewById(R.id.editTextDate);
         editDate.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -594,7 +619,7 @@ public class PublishActivity extends AppCompatActivity
                 calendar.setTime(today);
 
                 // DatePickerDialog
-                DatePickerDialog dialog = new DatePickerDialog(PublishActivity.this, datePickerListener
+                DatePickerDialog dialog = new DatePickerDialog(PublishActivity.this, new DatePickerListener(editDate)
                         , calendar.get(Calendar.YEAR)
                         , calendar.get(Calendar.MONTH)
                         , calendar.get(Calendar.DAY_OF_MONTH));
@@ -616,6 +641,106 @@ public class PublishActivity extends AppCompatActivity
             }
         });
 
+        // date picker (기간 검색)
+        editDateStart = (EditText)view.findViewById(R.id.editTextDate1);
+        editDateStart.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Date today = new Date();
+                Calendar calendar = Calendar.getInstance(Locale.KOREA);
+                calendar.setTime(today);
+
+                // DatePickerDialog
+                DatePickerDialog dialog = new DatePickerDialog(PublishActivity.this, new DatePickerListener(editDateStart)
+                        , calendar.get(Calendar.YEAR)
+                        , calendar.get(Calendar.MONTH)
+                        , calendar.get(Calendar.DAY_OF_MONTH));
+
+                dialog.show();
+            }
+
+        });
+
+        editDateStart.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                v.onTouchEvent(event);
+                InputMethodManager imm = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null){
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+                return true;
+            }
+        });
+
+        editDateEnd = (EditText)view.findViewById(R.id.editTextDate2);
+        editDateEnd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                Date today = new Date();
+                Calendar calendar = Calendar.getInstance(Locale.KOREA);
+                calendar.setTime(today);
+
+                // DatePickerDialog
+                DatePickerDialog dialog = new DatePickerDialog(PublishActivity.this, new DatePickerListener(editDateEnd)
+                        , calendar.get(Calendar.YEAR)
+                        , calendar.get(Calendar.MONTH)
+                        , calendar.get(Calendar.DAY_OF_MONTH));
+
+                dialog.show();
+            }
+
+        });
+
+        editDateEnd.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                v.onTouchEvent(event);
+                InputMethodManager imm = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                if (imm != null){
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                }
+                return true;
+            }
+        });
+
+        final CheckBox checkBoxDate = (CheckBox) view.findViewById(R.id.checkBoxDate);
+        if(searchParams.checkDate) {
+            checkBoxDate.setChecked(true);
+
+            if(searchParams.createdDate != null)
+                editDate.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(searchParams.createdDate));
+        }
+
+
+        final CheckBox checkBoxDateStart = (CheckBox) view.findViewById(R.id.checkBoxDate1);
+        if(searchParams.checkDateStart){
+            checkBoxDateStart.setChecked(true);
+
+            if(searchParams.createdDateStart != null)
+                editDateStart.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(searchParams.createdDateStart));
+
+            if(searchParams.createdDateEnd != null)
+                editDateEnd.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(searchParams.createdDateEnd));
+        }
+
+        checkBoxDate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked)
+                    checkBoxDateStart.setChecked(false);
+            }
+        });
+
+        checkBoxDateStart.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked)
+                    checkBoxDate.setChecked(false);
+            }
+        });
 
         TextView dialogTitle = (TextView)view.findViewById(R.id.dialogTitle);
         dialogTitle.setText("검색");
@@ -641,11 +766,11 @@ public class PublishActivity extends AppCompatActivity
         SageoriAPI api = SageoriClient.getAPI();
         Call<List<MemberItem>> callMembers = api.getMembers();
         CallbackGetMembers callbackMembers;
-        callbackMembers = new CallbackGetMembers();
+        callbackMembers = new CallbackGetMembers(true, searchParams.memberID);
         callMembers.enqueue(callbackMembers);
         Call<List<Integer>> callMachines = api.getMachines();
         CallbackGetMachines callbackMachines;
-        callbackMachines = new CallbackGetMachines();
+        callbackMachines = new CallbackGetMachines(true, searchParams.machineID);
         callMachines.enqueue(callbackMachines);
 
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
@@ -656,7 +781,12 @@ public class PublishActivity extends AppCompatActivity
                 CheckBox checkBoxMember = (CheckBox) alertDialog.findViewById(R.id.checkBoxMember);
                 CheckBox checkBoxDate = (CheckBox) alertDialog.findViewById(R.id.checkBoxDate);
 
+                int machineSpinnerPos = machineSpinner.getSelectedItemPosition();
+                int memberSpinnerPos = memberSpinner.getSelectedItemPosition();
+
                 String strDate = editDate.getText().toString();
+                String strDateStart = editDateStart.getText().toString();
+                String strDateEnd = editDateEnd.getText().toString();
 
                 if(checkBoxMachine.isChecked() && machineSpinner.getSelectedItemPosition() < 0) {
                     Toast.makeText(getApplicationContext(), "기계번호를 선택하세요.", Toast.LENGTH_SHORT).show();
@@ -673,8 +803,58 @@ public class PublishActivity extends AppCompatActivity
                     return;
                 }
 
-                int machineSpinnerPos = machineSpinner.getSelectedItemPosition();
-                int memberSpinnerPos = memberSpinner.getSelectedItemPosition();
+                if(checkBoxDateStart.isChecked() && (strDateStart.isEmpty() || strDateEnd.isEmpty())) {
+                    Toast.makeText(getApplicationContext(), "날짜를 선택하세요.", Toast.LENGTH_SHORT).show();
+                    //checkBoxDateStart.setFocusable(true);
+                    return;
+                }
+
+                // 검색상태를 보존한다.
+
+                if(checkBoxMachine.isChecked()){
+                    PublishActivity.this.searchParams.checkMachineID = true;
+                    PublishActivity.this.searchParams.machineID = machineList.get(machineSpinnerPos);
+                }else{
+                    PublishActivity.this.searchParams.checkMachineID = false;
+                    PublishActivity.this.searchParams.machineID = -1;
+                }
+
+                if(checkBoxMember.isChecked()) {
+                    PublishActivity.this.searchParams.checkMemberID = true;
+                    PublishActivity.this.searchParams.memberID = memberList.get(memberSpinnerPos).ID;
+                }else{
+                    PublishActivity.this.searchParams.checkMemberID = false;
+                    PublishActivity.this.searchParams.memberID = -1;
+                }
+
+                if(checkBoxDate.isChecked()){
+                    PublishActivity.this.searchParams.checkDate = true;
+                    try{
+                        Log.d("TAG", strDate);
+                        PublishActivity.this.searchParams.createdDate = new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).parse(strDate);
+                    }catch(ParseException e){
+                        Log.d("TAG", e.toString());
+                        PublishActivity.this.searchParams.createdDate = null;
+                    }
+
+                }else{
+                    PublishActivity.this.searchParams.checkDate = false;
+                    PublishActivity.this.searchParams.createdDate = null;
+                }
+
+                if(checkBoxDateStart.isChecked()){
+                    PublishActivity.this.searchParams.checkDateStart = checkBoxDateStart.isChecked();
+                    try{
+                        PublishActivity.this.searchParams.createdDateStart = new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).parse(strDateStart);
+                        PublishActivity.this.searchParams.createdDateEnd = new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).parse(strDateEnd);
+                    }catch(ParseException e){
+                        PublishActivity.this.searchParams.createdDateStart = null;
+                    }
+                }else{
+                    PublishActivity.this.searchParams.checkDateStart = checkBoxDateStart.isChecked();
+                    PublishActivity.this.searchParams.createdDateStart = null;
+                    PublishActivity.this.searchParams.createdDateEnd = null;
+                }
 
                 HashMap<String, String> getData = new HashMap<String, String>();
 
@@ -686,6 +866,12 @@ public class PublishActivity extends AppCompatActivity
 
                 if(checkBoxDate.isChecked())
                     getData.put("Date", strDate);
+
+                if(checkBoxDateStart.isChecked()){
+                    getData.put("DateStart", strDateStart);
+                    getData.put("DateEnd", strDateEnd);
+                }
+
 
                 showProgressbar(true);
                 final SageoriAPI api = SageoriClient.getAPI();
