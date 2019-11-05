@@ -56,11 +56,13 @@ public interface SageoriAPI {
     @GET("/api/get_return_items")
     Call<List<ReturnItem>> getReturnItems();
 
+    @Multipart
     @POST("/api/create_return_item")
-    Call<SageoriResult> createReturnItem(@Body HashMap<String, String> param);
+    Call<SageoriResult> createReturnItem(@PartMap HashMap<String, RequestBody> param);
 
+    @Multipart
     @POST("/api/update_return_item")
-    Call<SageoriResult> updateReturnItem(@Body HashMap<String, String> param);
+    Call<SageoriResult> updateReturnItem(@PartMap HashMap<String, RequestBody> param);
 
     @POST("/api/delete_return_item")
     Call<SageoriResult> deleteReturnItem(@Body HashMap<String, String> param);

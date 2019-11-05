@@ -2,6 +2,7 @@ package com.hgtech.sageoriapp;
 
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
@@ -25,6 +26,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -164,6 +166,10 @@ public class ReturnActivity extends AppCompatActivity
         }
     }
 
+    static final int REQUEST_IMAGE_CAPTURE = 1;
+    static final int REQUEST_TAKE_PHOTO = 1;
+    static final int RESULT_LOAD_IMG = 2;
+
     private Spinner machineSpinner1;
     private Spinner machineSpinner2;
     private List<Integer> machineList;
@@ -179,6 +185,8 @@ public class ReturnActivity extends AppCompatActivity
     private SwipeRefreshLayout swipeLayout;
     private ProgressDialog progressDialog;
 
+    ImagePresenter imagePresenter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -191,6 +199,8 @@ public class ReturnActivity extends AppCompatActivity
         // SwipeRefreshLayout 설정
         swipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
         swipeLayout.setOnRefreshListener(this);
+
+        imagePresenter = new ImagePresenter(this);
 
         // ListView 설정
         ListView listView = (ListView)findViewById(R.id.listview);
@@ -266,6 +276,37 @@ public class ReturnActivity extends AppCompatActivity
         memberSpinnerAdapter = new MemberSpinnerAdapter(view.getContext(), android.R.layout.simple_spinner_item, memberList);
         memberSpinner.setAdapter(memberSpinnerAdapter);
 
+        // cameraButton
+        Button cameraButton = (Button)view.findViewById(R.id.buttonCamera);
+        cameraButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imagePresenter.dispatchTakePictureIntent(REQUEST_TAKE_PHOTO);
+            }
+        });
+
+        // galleryButton
+        Button galleryButton = (Button)view.findViewById(R.id.buttonGallery);
+        galleryButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                imagePresenter.dispatchGalleryPictureIntent(RESULT_LOAD_IMG);
+            }
+        });
+
+        ImageView returnImageView = (ImageView) view.findViewById(R.id.imageViewPublish);
+        imagePresenter.setImageView(returnImageView);
+
+
+        //previewImageDialog = null;
+
+        returnImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imagePresenter.showPreviewImageDialog();
+            }
+        });
+
         EditText editReturn = (EditText)view.findViewById(R.id.editTextReturn);
         EditText editService = (EditText)view.findViewById(R.id.editTextService);
         EditText editOnePone = (EditText)view.findViewById(R.id.editTextOnePone);
@@ -302,9 +343,14 @@ public class ReturnActivity extends AppCompatActivity
         Call<List<MemberItem>> callMembers = api.getMembers();
         ReturnActivity.CallbackGetMembers callbackMembers;
         if(shouldUpdate) {
+
             callbackMembers = new ReturnActivity.CallbackGetMembers(true, dataList.get(position).MemberID);
+            imagePresenter.requestImage(dataList.get(position).ImageFile);
+
         }else{
+
             callbackMembers = new ReturnActivity.CallbackGetMembers();
+
         }
         callMembers.enqueue(callbackMembers);
         Call<List<Integer>> callMachines = api.getMachines();
@@ -354,27 +400,33 @@ public class ReturnActivity extends AppCompatActivity
                 int memberSpinnerPos = memberSpinner.getSelectedItemPosition();
 
 
-                HashMap<String, String> postData = new HashMap<String, String>();
+                HashMap<String, RequestBody> postData = new HashMap<String, RequestBody>();
 
-
-                String machineID1 = Integer.toString(machineList.get(machineSpinnerPos1));
-                String machineID2 = Integer.toString(machineList.get(machineSpinnerPos2));
-                String memberID = Integer.toString(memberList.get(memberSpinnerPos).ID);
-
+                RequestBody machineID1 = RequestBody.create(MediaType.parse("text/plain"), Integer.toString(machineList.get(machineSpinnerPos1)));
+                RequestBody machineID2 = RequestBody.create(MediaType.parse("text/plain"), Integer.toString(machineList.get(machineSpinnerPos2)));
+                RequestBody memberID = RequestBody.create(MediaType.parse("text/plain"), Integer.toString(memberList.get(memberSpinnerPos).ID));
+                RequestBody returnBody = RequestBody.create(MediaType.parse("text/plain"), strReturn);
+                RequestBody serviceBody = RequestBody.create(MediaType.parse("text/plain"), strService.isEmpty() ? "0" : strService);
+                RequestBody onePoneBody = RequestBody.create(MediaType.parse("text/plain"), strOnePone.isEmpty() ? "0" : strOnePone);
 
                 postData.put("MachineID1", machineID1);
                 postData.put("MachineID2", machineID2);
                 postData.put("MemberID", memberID);
-                postData.put("Return", strReturn);
-                postData.put("Service", strService.isEmpty() ? "0" : strService);
-                postData.put("OnePone", strOnePone.isEmpty() ? "0" : strOnePone);
+                postData.put("Return", returnBody);
+                postData.put("Service", serviceBody);
+                postData.put("OnePone", onePoneBody);
 
+                File photoFile = imagePresenter.getPhotoFile();
+                if(photoFile != null){
+                    RequestBody imageFile = RequestBody.create(MediaType.parse("image/*"), photoFile);
+                    postData.put("PublishImageFile\"; filename=\"pp.png\" ", imageFile);
+                }
 
                 showProgressbar(true);
                 final SageoriAPI api = SageoriClient.getAPI();
 
                 if(shouldUpdate) {
-                    String ID = Integer.toString(dataList.get(position).ID);
+                    RequestBody ID = RequestBody.create(MediaType.parse("text/plain"), Integer.toString(dataList.get(position).ID));
                     postData.put("ID", ID);
                     Call<SageoriResult> callUpdate = api.updateReturnItem(postData);
                     callUpdate.enqueue(new Callback<SageoriResult>(){
@@ -435,7 +487,7 @@ public class ReturnActivity extends AppCompatActivity
     }
 
     private void showActionsDialog(final int position) {
-        CharSequence actionMenu[] = new CharSequence[]{"수정하기", "삭제하기"};
+        CharSequence actionMenu[] = new CharSequence[]{"사진보기", "수정하기", "삭제하기"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("작업을 선택하세요.");
@@ -443,9 +495,11 @@ public class ReturnActivity extends AppCompatActivity
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                if (which == 0) {
+                if(which == 0) {
+                    imagePresenter.showPreviewImageDialog(dataList.get(position).ImageFile);
+                }else if (which == 1) {
                     showRetrunDialog(true, position);
-                } else if(which == 1) {
+                } else if(which == 2) {
 
                     showProgressbar(true);
                     final SageoriAPI api = SageoriClient.getAPI();
@@ -508,5 +562,20 @@ public class ReturnActivity extends AppCompatActivity
         callReturnItems.enqueue(new ReturnActivity.CallbackGetReturnItems());
 
         swipeLayout.setRefreshing(false);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+
+            imagePresenter.onActivityResult(REQUEST_IMAGE_CAPTURE, data);
+
+        }else if(requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK) {
+
+            imagePresenter.onActivityResult(RESULT_LOAD_IMG, data);
+
+        }
+
     }
 }
