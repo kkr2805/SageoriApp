@@ -179,7 +179,7 @@ public class ScoreboxActivity extends AppCompatActivity
             }
         });
 
-        MenuItem searchDateButton = (MenuItem)menu.findItem(R.id.searchDate);
+        MenuItem searchDateButton = (MenuItem)menu.findItem(R.id.search);
         searchDateButton.setTitle("날짜검색");
 
         return true;

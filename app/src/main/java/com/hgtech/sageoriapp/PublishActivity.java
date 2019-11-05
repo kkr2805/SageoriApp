@@ -329,12 +329,7 @@ public class PublishActivity extends AppCompatActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
-        switch(item.getItemId())
-        {
-            case R.id.searchDate:
-                //calendarView.setVisibility(View.VISIBLE);
-                break;
-        }
+
         return true;
     }
 

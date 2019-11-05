@@ -56,6 +56,9 @@ public interface SageoriAPI {
     @GET("/api/get_return_items")
     Call<List<ReturnItem>> getReturnItems();
 
+    @GET("/api/get_return_items")
+    Call<List<ReturnItem>> getReturnItems(@QueryMap HashMap<String, String> param);
+
     @Multipart
     @POST("/api/create_return_item")
     Call<SageoriResult> createReturnItem(@PartMap HashMap<String, RequestBody> param);

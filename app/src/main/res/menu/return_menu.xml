@@ -3,21 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
-        android:id="@+id/menu_search"
+        android:id="@+id/actionSearch"
         android:title="search"
         android:icon="@drawable/ic_search_white_24dp"
+        app:actionViewClass="android.widget.SearchView"
         app:showAsAction="always"
         />
 
     <item android:id="@+id/new_item"
-        android:title="회수등록"
+        android:title="지급등록"
         app:showAsAction="always" />
 
     <group>
         <item android:id="@+id/login"
             android:title="로그인"/>
-        <item android:id="@+id/searchDate"
-            android:title="날짜검색"/>
+        <item android:id="@+id/search"
+            android:title="검색"/>
     </group>
 
 </menu>

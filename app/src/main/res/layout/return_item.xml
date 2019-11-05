@@ -205,6 +205,24 @@
 
         </LinearLayout>
 
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="17dp"
+            android:layout_weight="9">
+
+            <TextView
+                android:id="@+id/CreatedDate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="9"
+                android:textAlignment="textEnd"
+                android:textSize="13sp"
+                android:textColor="@color/labelColor"
+                tools:text="2019.11.05 02시 00분" />
+
+        </LinearLayout>
 
 
     </LinearLayout>
