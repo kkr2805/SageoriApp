@@ -96,15 +96,15 @@ public class PublishActivity extends AppCompatActivity
     SearchView searchView;
 
     SearchParams searchParams;
-    EditText editDate;
-    EditText editDateStart;
-    EditText editDateEnd;
+    TextView editDate;
+    TextView editDateStart;
+    TextView editDateEnd;
 
     private class DatePickerListener implements DatePickerDialog.OnDateSetListener {
 
-        EditText editDate;
+        TextView editDate;
 
-        public DatePickerListener(EditText editDate) {
+        public DatePickerListener(TextView editDate) {
             this.editDate = editDate;
         }
 
@@ -609,7 +609,7 @@ public class PublishActivity extends AppCompatActivity
         memberSpinner.setAdapter(memberSpinnerAdapter);
 
         // date picker (날짜 검색)
-        editDate = (EditText)view.findViewById(R.id.editTextDate);
+        editDate = (TextView)view.findViewById(R.id.editTextDate);
         editDate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -629,20 +629,8 @@ public class PublishActivity extends AppCompatActivity
 
         });
 
-        editDate.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                v.onTouchEvent(event);
-                InputMethodManager imm = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null){
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
-                return true;
-            }
-        });
-
         // date picker (기간 검색)
-        editDateStart = (EditText)view.findViewById(R.id.editTextDate1);
+        editDateStart = (TextView)view.findViewById(R.id.editTextDate1);
         editDateStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -662,19 +650,7 @@ public class PublishActivity extends AppCompatActivity
 
         });
 
-        editDateStart.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                v.onTouchEvent(event);
-                InputMethodManager imm = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null){
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
-                return true;
-            }
-        });
-
-        editDateEnd = (EditText)view.findViewById(R.id.editTextDate2);
+        editDateEnd = (TextView)view.findViewById(R.id.editTextDate2);
         editDateEnd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -692,18 +668,6 @@ public class PublishActivity extends AppCompatActivity
                 dialog.show();
             }
 
-        });
-
-        editDateEnd.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                v.onTouchEvent(event);
-                InputMethodManager imm = (InputMethodManager)v.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-                if (imm != null){
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
-                return true;
-            }
         });
 
         final CheckBox checkBoxDate = (CheckBox) view.findViewById(R.id.checkBoxDate);

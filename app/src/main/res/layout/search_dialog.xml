@@ -74,15 +74,27 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:text="날짜" />
 
-        <EditText
+        <TextView
             android:id="@+id/editTextDate"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="40dp"
+            android:layout_weight="4"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:textColor="@color/textColor"
+            android:text="" />
+
+        <TextView
+            android:id="@+id/empty3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="2"
-            android:inputType="numberDecimal"
+            android:layout_gravity="center"
+            android:gravity="center"
             android:text="" />
 
     </LinearLayout>
@@ -101,12 +113,15 @@
             android:layout_weight="3"
             android:text="기간" />
 
-        <EditText
+        <TextView
             android:id="@+id/editTextDate1"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="40dp"
             android:layout_weight="4"
-            android:inputType="numberDecimal"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="15sp"
+            android:textColor="@color/textColor"
             android:text="" />
 
         <TextView
@@ -134,13 +149,16 @@
             android:layout_weight="3"
             android:text="" />
 
-        <EditText
+        <TextView
             android:id="@+id/editTextDate2"
             android:layout_width="0dp"
-            android:layout_height="50dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center"
             android:layout_weight="4"
-            android:inputType="numberDecimal"
-            android:text="" />
+            android:gravity="center"
+            android:text=""
+            android:textColor="@color/textColor"
+            android:textSize="15sp" />
 
         <TextView
             android:id="@+id/empty1"
