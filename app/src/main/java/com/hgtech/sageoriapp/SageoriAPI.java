@@ -84,4 +84,7 @@ public interface SageoriAPI {
 
     @POST("/api/delete_exchange")
     Call<SageoriResult> deleteExchangeItem(@Body HashMap<String, String> param);
+
+    @POST("/api/confirm_admin")
+    Call<SageoriResult> confirmAdmin(@Body HashMap<String, String> password);
 }

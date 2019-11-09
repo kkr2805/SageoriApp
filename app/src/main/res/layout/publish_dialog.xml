@@ -29,12 +29,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:textColor="@color/textColor"
             android:text="기계번호" />
 
         <Spinner
             android:id="@+id/spinnerMachine"
             android:layout_width="0dp"
             android:layout_height="50dp"
+            android:textColor="@color/textColor"
             android:layout_weight="2" />
 
 
@@ -52,13 +54,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:textColor="@color/textColor"
             android:text="회원이름" />
 
         <Spinner
             android:id="@+id/spinnerMember"
             android:layout_width="0dp"
             android:layout_height="50dp"
-            android:ems="10"
+            android:textColor="@color/textColor"
             android:layout_weight="2" />
 
     </LinearLayout>
@@ -75,6 +78,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:textColor="@color/textColor"
             android:text="Credit" />
 
         <EditText
@@ -83,6 +87,7 @@
             android:layout_height="50dp"
             android:layout_weight="2"
             android:inputType="numberDecimal"
+            android:textColor="@color/textColor"
             android:text="" />
 
     </LinearLayout>
@@ -99,6 +104,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:textColor="@color/textColor"
             android:text="Bank" />
 
         <EditText
@@ -106,8 +112,8 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="2"
-            android:ems="10"
             android:inputType="numberDecimal"
+            android:textColor="@color/textColor"
             android:text="" />
 
     </LinearLayout>
@@ -124,6 +130,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="3"
+            android:textColor="@color/textColor"
             android:text="사진" />
 
         <ImageView
@@ -133,6 +140,7 @@
             android:layout_weight="2"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
+            android:textColor="@color/textColor"
             tools:srcCompat="@tools:sample/avatars" />
 
         <Button
@@ -140,6 +148,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="2"
+
             android:text="카메라" />
 
         <Button

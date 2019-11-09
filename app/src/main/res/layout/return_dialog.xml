@@ -29,12 +29,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:textColor="@color/textColor"
             android:text="기계번호1" />
 
         <Spinner
             android:id="@+id/spinnerMachine1"
             android:layout_width="0dp"
             android:layout_height="50dp"
+            android:textColor="@color/textColor"
             android:layout_weight="2" />
 
 
@@ -52,12 +54,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:textColor="@color/textColor"
             android:text="기계번호2" />
 
         <Spinner
             android:id="@+id/spinnerMachine2"
             android:layout_width="0dp"
             android:layout_height="50dp"
+            android:textColor="@color/textColor"
             android:layout_weight="2" />
 
 
@@ -75,13 +79,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:textColor="@color/textColor"
             android:text="회원이름" />
 
         <Spinner
             android:id="@+id/spinnerMember"
             android:layout_width="0dp"
             android:layout_height="50dp"
-            android:ems="10"
+            android:textColor="@color/textColor"
             android:layout_weight="2" />
 
     </LinearLayout>
@@ -97,6 +102,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:textColor="@color/textColor"
             android:layout_weight="1"
             android:text="회수" />
 
@@ -106,6 +112,7 @@
             android:layout_height="50dp"
             android:layout_weight="2"
             android:inputType="numberDecimal"
+            android:textColor="@color/textColor"
             android:text="" />
 
     </LinearLayout>
@@ -122,6 +129,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:textColor="@color/textColor"
             android:text="서비스" />
 
         <EditText
@@ -129,7 +137,6 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="2"
-            android:ems="10"
             android:inputType="numberDecimal"
             android:text="" />
 
@@ -147,6 +154,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="1"
+            android:textColor="@color/textColor"
             android:text="1 + 1" />
 
         <EditText
@@ -154,8 +162,8 @@
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:layout_weight="2"
-            android:ems="10"
             android:inputType="numberDecimal"
+            android:textColor="@color/textColor"
             android:text="" />
 
     </LinearLayout>
@@ -172,6 +180,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_weight="3"
+            android:textColor="@color/textColor"
             android:text="사진" />
 
         <ImageView

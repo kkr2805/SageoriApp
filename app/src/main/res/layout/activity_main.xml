@@ -22,7 +22,7 @@
             android:textAlignment="center"
             android:textAllCaps="false"
             android:textColor="#463D42"
-            android:textSize="30sp"
+            android:textSize="25sp"
             android:textStyle="bold" />
 
         <Button
@@ -32,7 +32,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="50dp"
             android:text="회원관리"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:backgroundTint="#1565C0" />
 
@@ -43,7 +43,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
             android:text="지급관리"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:backgroundTint="#1565C0" />
 
@@ -54,7 +54,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
             android:text="회수관리"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:backgroundTint="#1565C0" />
 
@@ -65,7 +65,7 @@
             android:layout_gravity="center"
             android:layout_marginTop="20dp"
             android:text="점수관리"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold"
             app:backgroundTint="#1565C0" />
 
@@ -76,7 +76,7 @@
             android:text="무등 도서관 사거리"
             android:textAlignment="center"
             android:textColor="#060607"
-            android:textSize="18sp"
+            android:textSize="15sp"
             android:textStyle="bold" />
     </LinearLayout>
 

@@ -116,7 +116,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
             memberNameView.setText(currentScoreItem.MemberName);
 
             TextView scoreLabelView = (TextView) listItemView.findViewById(R.id.scoreLabel);
-            scoreLabelView.setText("점수");
+            scoreLabelView.setText("누적");
 
             TextView scoreView = (TextView)listItemView.findViewById(R.id.score);
             scoreView.setText(String.valueOf(currentScoreItem.Score));
@@ -549,8 +549,73 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
             @Override
             public void onClick(DialogInterface dialog, int which) {
 
-                showInsertExchangeDialog(context, scoreItem);
 
+                    LayoutInflater layoutInflaterAndroid = LayoutInflater.from(context);
+                    View view = layoutInflaterAndroid.inflate(R.layout.confirm_admin_dialog, null);
+
+                    AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(context);
+                    alertDialogBuilderUserInput.setView(view);
+
+                    final EditText passwordEditText = (EditText)view.findViewById(R.id.editTextPassword);
+
+                    alertDialogBuilderUserInput
+                            .setCancelable(false)
+                            .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogBox, int id) {
+                                }
+                            })
+                            .setNegativeButton("취소",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialogBox, int id) {
+                                            dialogBox.cancel();
+                                        }
+                                    });
+
+                    final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
+                    alertDialog.show();
+
+
+
+                    alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            String strPassword = passwordEditText.getText().toString();
+
+                            if(strPassword.isEmpty()){
+                                Toast.makeText(context, "비밀번호를 입력하세요", Toast.LENGTH_SHORT).show();
+                                return;
+                            }
+
+                            HashMap<String, String> postData = new HashMap<>();
+                            postData.put("password", strPassword);
+
+                            // Retrofit API
+                            SageoriAPI api = SageoriClient.getAPI();
+                            Call<SageoriResult> callConfirmAdmin = api.confirmAdmin(postData);
+                            callConfirmAdmin.enqueue(new Callback<SageoriResult>(){
+                                @Override
+                                public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
+                                    if(response.isSuccessful() && response.body().isSuccess()){
+                                        showInsertExchangeDialog(context, scoreItem);
+                                        return;
+                                    }else{
+
+                                        Toast.makeText(context, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show();
+                                        return;
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(Call<SageoriResult> call, Throwable t) {
+                                    Toast.makeText(context, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show();
+                                    showProgressbar(context, false);
+                                    return;
+                                }
+                            });
+                            alertDialog.dismiss();
+                        }
+                    });
             }
 
         });
@@ -568,59 +633,131 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                if(which == 0){
 
-                    showUpdateExchangeDialog(context, exchageItem);
+                final int _which = which;
 
-                } else if (which == 1) {
+                LayoutInflater layoutInflaterAndroid = LayoutInflater.from(context);
+                View view = layoutInflaterAndroid.inflate(R.layout.confirm_admin_dialog, null);
 
-                    showProgressbar( context, true);
-                    final SageoriAPI api = SageoriClient.getAPI();
+                AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(context);
+                alertDialogBuilderUserInput.setView(view);
 
-                    HashMap<String, String> postData = new HashMap<String, String>();
-                    postData.put("ID", Integer.toString(exchageItem.ID));
+                final EditText passwordEditText = (EditText)view.findViewById(R.id.editTextPassword);
 
-                    Call<SageoriResult> callDelete = api.deleteExchangeItem(postData);
-                    callDelete.enqueue(new Callback<SageoriResult>(){
-                        @Override
-                        public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
-                            if(response.isSuccessful() && response.body().isSuccess()){
-                                Toast.makeText(context, "삭제되었습니다", Toast.LENGTH_SHORT).show();
-
-                                int position = getPosition(exchageItem);
-                                ScoreItem parent = getParentScoreItem(exchageItem);
-                                int parentPosition = getPosition(parent);
-
-                                int subposition = 0;
-                                for (ExchageItem item: parent.exchageItemList){
-                                    if(item == exchageItem)
-                                        break;
-
-                                    subposition++;
-                                }
-
-                                parent.exchageItemList.remove(subposition);
-                                parent.updateExchange();
-
-                                ExpandableScoreListAdapter.this.notifyItemRemoved(position);
-                                ExpandableScoreListAdapter.this.notifyItemChanged(parentPosition);
-                                ExpandableScoreListAdapter.this.notifyDataSetChanged();
-
-                                showProgressbar(context, false);
-
-                                return;
+                alertDialogBuilderUserInput
+                        .setCancelable(false)
+                        .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogBox, int id) {
                             }
-                        }
+                        })
+                        .setNegativeButton("취소",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialogBox, int id) {
+                                        dialogBox.cancel();
+                                    }
+                                });
 
-                        @Override
-                        public void onFailure(Call<SageoriResult> call, Throwable t) {
-                            Toast.makeText(context, "차감정보 삭제실패", Toast.LENGTH_SHORT).show();
-                            showProgressbar(context, false);
+                final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
+                alertDialog.show();
+
+
+
+                alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        String strPassword = passwordEditText.getText().toString();
+
+                        if(strPassword.isEmpty()){
+                            Toast.makeText(context, "비밀번호를 입력하세요", Toast.LENGTH_SHORT).show();
                             return;
                         }
-                    });
 
-                }
+                        HashMap<String, String> postData = new HashMap<>();
+                        postData.put("password", strPassword);
+
+                        // Retrofit API
+                        SageoriAPI api = SageoriClient.getAPI();
+                        Call<SageoriResult> callConfirmAdmin = api.confirmAdmin(postData);
+                        callConfirmAdmin.enqueue(new Callback<SageoriResult>(){
+                            @Override
+                            public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
+                                if(response.isSuccessful() && response.body().isSuccess()){
+
+                                    if(_which == 0){
+
+                                        showUpdateExchangeDialog(context, exchageItem);
+
+                                    } else if (_which == 1) {
+
+                                        showProgressbar( context, true);
+                                        final SageoriAPI api = SageoriClient.getAPI();
+
+                                        HashMap<String, String> postData = new HashMap<String, String>();
+                                        postData.put("ID", Integer.toString(exchageItem.ID));
+
+                                        Call<SageoriResult> callDelete = api.deleteExchangeItem(postData);
+                                        callDelete.enqueue(new Callback<SageoriResult>(){
+                                            @Override
+                                            public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
+                                                if(response.isSuccessful() && response.body().isSuccess()){
+                                                    Toast.makeText(context, "삭제되었습니다", Toast.LENGTH_SHORT).show();
+
+                                                    int position = getPosition(exchageItem);
+                                                    ScoreItem parent = getParentScoreItem(exchageItem);
+                                                    int parentPosition = getPosition(parent);
+
+                                                    int subposition = 0;
+                                                    for (ExchageItem item: parent.exchageItemList){
+                                                        if(item == exchageItem)
+                                                            break;
+
+                                                        subposition++;
+                                                    }
+
+                                                    parent.exchageItemList.remove(subposition);
+                                                    parent.updateExchange();
+
+                                                    ExpandableScoreListAdapter.this.notifyItemRemoved(position);
+                                                    ExpandableScoreListAdapter.this.notifyItemChanged(parentPosition);
+                                                    ExpandableScoreListAdapter.this.notifyDataSetChanged();
+
+                                                    showProgressbar(context, false);
+
+                                                    return;
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onFailure(Call<SageoriResult> call, Throwable t) {
+                                                Toast.makeText(context, "차감정보 삭제실패", Toast.LENGTH_SHORT).show();
+                                                showProgressbar(context, false);
+                                                return;
+                                            }
+                                        });
+
+                                    }
+
+                                    return;
+                                }else{
+
+                                    Toast.makeText(context, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show();
+                                    return;
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(Call<SageoriResult> call, Throwable t) {
+                                Toast.makeText(context, "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show();
+                                showProgressbar(context, false);
+                                return;
+                            }
+                        });
+                        alertDialog.dismiss();
+                    }
+                });
+
+
 
 
             }

@@ -15,7 +15,7 @@
         <item name="toolbarStyle">@style/ToolbarStyle.Dark</item> <!--Toolbar 스타일-->
         <item name="actionMenuTextColor">@color/textThemeDark</item> <!--액션 메뉴의 텍스트 색상-->
         <item name="colorControlNormal">@color/textThemeDark</item> <!--홈/뒤로가기 버튼의 색상-->
-
+        <item name="android:textSize">15dp</item>
     </style>
 
     <!--Toolbar 스타일-->
@@ -34,7 +34,7 @@
     <!-- Toolbar의 서브타이틀 텍스트-->
     <style name="ToolbarSubtitleStyle.Dark" parent="TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
         <item name="android:textColor">@color/textThemeDark</item> <!-- Toolbar의 서브타이틀 텍스트 색상-->
-        <item name="android:textSize">12dp</item> <!-- Toolbar의 서브타이틀 텍스트 사이즈-->
+        <item name="android:textSize">15dp</item> <!-- Toolbar의 서브타이틀 텍스트 사이즈-->
     </style>
 
 </resources>

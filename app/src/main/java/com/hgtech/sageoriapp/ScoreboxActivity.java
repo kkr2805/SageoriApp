@@ -53,6 +53,7 @@ public class ScoreboxActivity extends AppCompatActivity
     private SwipeRefreshLayout swipeLayout;
     private ProgressDialog progressDialog;
 
+    private EditText passwordEditText;
 
     private class CallbackGetScoreItems implements Callback<List<ScoreItem>> {
         @Override
@@ -174,13 +175,13 @@ public class ScoreboxActivity extends AppCompatActivity
         newItemButton.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
-                showExchangeDialog(false,-1);
+                showConfirmAdminDialog();
                 return false;
             }
         });
 
-        MenuItem searchDateButton = (MenuItem)menu.findItem(R.id.search);
-        searchDateButton.setTitle("날짜검색");
+        //MenuItem searchDateButton = (MenuItem)menu.findItem(R.id.search);
+        //searchDateButton.setTitle("날짜검색");
 
         return true;
     }
@@ -188,6 +189,75 @@ public class ScoreboxActivity extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected(MenuItem item){
         return true;
+    }
+
+    private void showConfirmAdminDialog() {
+        LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getApplicationContext());
+        View view = layoutInflaterAndroid.inflate(R.layout.confirm_admin_dialog, null);
+
+        AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(ScoreboxActivity.this);
+        alertDialogBuilderUserInput.setView(view);
+
+        passwordEditText = (EditText)view.findViewById(R.id.editTextPassword);
+
+        alertDialogBuilderUserInput
+                .setCancelable(false)
+                .setPositiveButton("확인", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogBox, int id) {
+                    }
+                })
+                .setNegativeButton("취소",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialogBox, int id) {
+                                dialogBox.cancel();
+                            }
+                        });
+
+        final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
+        alertDialog.show();
+
+
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String strPassword = passwordEditText.getText().toString();
+
+                if(strPassword.isEmpty()){
+                    Toast.makeText(getApplicationContext(), "비밀번호를 입력하세요", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                HashMap<String, String> postData = new HashMap<>();
+                postData.put("password", strPassword);
+
+                // Retrofit API
+                SageoriAPI api = SageoriClient.getAPI();
+                Call<SageoriResult> callConfirmAdmin = api.confirmAdmin(postData);
+                callConfirmAdmin.enqueue(new Callback<SageoriResult>(){
+                    @Override
+                    public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
+                        if(response.isSuccessful() && response.body().isSuccess()){
+                            showExchangeDialog(false, -1);
+                            return;
+                        }else{
+
+                            Toast.makeText(getApplicationContext(), "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<SageoriResult> call, Throwable t) {
+                        Toast.makeText(getApplicationContext(), "비밀번호가 일치하지 않습니다.", Toast.LENGTH_SHORT).show();
+                        showProgressbar(false);
+                        return;
+                    }
+                });
+                alertDialog.dismiss();
+            }
+        });
     }
 
     private void showExchangeDialog(final boolean shouldUpdate, final int position) {

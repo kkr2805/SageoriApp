@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="30dp">
@@ -13,7 +15,8 @@
         android:layout_marginBottom="20dp"
         android:textSize="20sp"
         android:textColor="@color/colorAccent"
-        android:text="회원등록" />
+        android:text="관리자 인증" />
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,46 +25,23 @@
         android:orientation="horizontal">
 
         <TextView
-            android:id="@+id/textViewName"
+            android:id="@+id/textViewExchange"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
             android:layout_weight="1"
             android:textColor="@color/textColor"
-            android:text="이름" />
+            android:text="비밀번호" />
 
         <EditText
-            android:id="@+id/editTextName"
+            android:id="@+id/editTextPassword"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="50dp"
             android:layout_weight="2"
-            android:inputType="textPersonName"
+            android:inputType="numberPassword"
             android:textColor="@color/textColor"
             android:text="" />
 
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left"
-        android:orientation="horizontal">
-
-        <TextView
-            android:id="@+id/textViewHP"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:textColor="@color/textColor"
-            android:text="전화번호" />
-
-        <EditText
-            android:id="@+id/editTextHP"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:inputType="phone"
-            android:textColor="@color/textColor"
-            android:text="" />
-
-    </LinearLayout>
 </LinearLayout>

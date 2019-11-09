@@ -11,14 +11,12 @@
         />
 
     <item android:id="@+id/new_item"
-        android:title="지급등록"
+        android:title="차감등록"
         app:showAsAction="always" />
 
     <group>
         <item android:id="@+id/login"
             android:title="로그인"/>
-        <item android:id="@+id/search"
-            android:title="검색"/>
     </group>
 
 </menu>

@@ -695,6 +695,10 @@ public class ReturnActivity extends AppCompatActivity
 
             if(searchParams.createdDate != null)
                 editDate.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(searchParams.createdDate));
+            else
+                editDate.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(new Date()));
+        }else{
+            editDate.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(new Date()));
         }
 
 
@@ -704,9 +708,16 @@ public class ReturnActivity extends AppCompatActivity
 
             if(searchParams.createdDateStart != null)
                 editDateStart.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(searchParams.createdDateStart));
+            else
+                editDateStart.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(new Date()));
 
             if(searchParams.createdDateEnd != null)
                 editDateEnd.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(searchParams.createdDateEnd));
+            else
+                editDateEnd.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(new Date()));
+        }else{
+            editDateStart.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(new Date()));
+            editDateEnd.setText(new SimpleDateFormat("yyyy.MM.dd", Locale.KOREA).format(new Date()));
         }
 
         checkBoxDate.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
