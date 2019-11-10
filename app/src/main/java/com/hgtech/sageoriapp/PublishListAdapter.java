@@ -87,19 +87,19 @@ public class PublishListAdapter extends ArrayAdapter<PublishItem>
         creditLabel.setText("Credit");
 
         TextView creditView = (TextView) listItemView.findViewById(R.id.credit);
-        creditView.setText(String.valueOf(currentPublishItem.Credit));
+        creditView.setText(String.valueOf(NumberFormatter.getNumberString(currentPublishItem.Credit)));
 
         TextView bankLabel = (TextView)listItemView.findViewById(R.id.bankLabel);
         bankLabel.setText("Bank");
 
         TextView bankView = (TextView) listItemView.findViewById(R.id.bank);
-        bankView.setText(String.valueOf(currentPublishItem.Bank));
+        bankView.setText(NumberFormatter.getNumberString(currentPublishItem.Bank));
 
         TextView totalLabel = (TextView)listItemView.findViewById(R.id.totalLabel);
         totalLabel.setText("합계");
 
         TextView totalView = (TextView) listItemView.findViewById(R.id.total);
-        totalView.setText(String.valueOf(currentPublishItem.Credit + currentPublishItem.Bank));
+        totalView.setText(NumberFormatter.getNumberString(currentPublishItem.Credit + currentPublishItem.Bank));
 
         TextView memberNameView = (TextView) listItemView.findViewById(R.id.member_name);
         memberNameView.setText(currentPublishItem.MemberName);

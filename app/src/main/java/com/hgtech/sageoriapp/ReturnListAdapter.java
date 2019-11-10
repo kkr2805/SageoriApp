@@ -87,25 +87,25 @@ public class ReturnListAdapter extends ArrayAdapter<ReturnItem> {
         returnLabel.setText("회수");
 
         TextView returnView = (TextView) listItemView.findViewById(R.id.returnValue);
-        returnView.setText(String.valueOf(currentReturnItem.Retrun));
+        returnView.setText(NumberFormatter.getNumberString(currentReturnItem.Retrun));
 
         TextView serviceLabel = (TextView)listItemView.findViewById(R.id.serviceLabel);
         serviceLabel.setText("서비스");
 
         TextView serviceView = (TextView) listItemView.findViewById(R.id.service);
-        serviceView.setText(String.valueOf(currentReturnItem.Service));
+        serviceView.setText(NumberFormatter.getNumberString(currentReturnItem.Service));
 
         TextView onePoneLabel = (TextView)listItemView.findViewById(R.id.onePoneLabel);
         onePoneLabel.setText("1 + 1");
 
         TextView onePoneView = (TextView) listItemView.findViewById(R.id.onePone);
-        onePoneView.setText(String.valueOf(currentReturnItem.OnePone));
+        onePoneView.setText(NumberFormatter.getNumberString(currentReturnItem.OnePone));
 
         TextView totalLabel = (TextView)listItemView.findViewById(R.id.totalLabel);
         totalLabel.setText("합계");
 
         TextView totalView = (TextView) listItemView.findViewById(R.id.total);
-        totalView.setText(String.valueOf(currentReturnItem.Retrun + currentReturnItem.Service + currentReturnItem.OnePone));
+        totalView.setText(NumberFormatter.getNumberString(currentReturnItem.Retrun + currentReturnItem.Service + currentReturnItem.OnePone));
 
         TextView memberNameView = (TextView) listItemView.findViewById(R.id.member_name);
         memberNameView.setText(currentReturnItem.MemberName);
