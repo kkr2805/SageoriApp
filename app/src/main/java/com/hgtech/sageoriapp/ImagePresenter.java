@@ -465,4 +465,11 @@ public class ImagePresenter {
 
         }
     }
+
+    public void reset() {
+
+        photoFile = null;
+        previewImageDialog = null;
+
+    }
 }

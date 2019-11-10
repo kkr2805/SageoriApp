@@ -140,7 +140,7 @@ public class ExpandableScoreListAdapter extends RecyclerView.Adapter<RecyclerVie
             publishView.setText(String.valueOf(currentScoreItem.Publish));
 
             TextView totalLabel = (TextView)listItemView.findViewById(R.id.totalLabel);
-            totalLabel.setText("이월");
+            totalLabel.setText("합계");
 
             TextView totalView = (TextView) listItemView.findViewById(R.id.total);
             totalView.setText(String.valueOf(currentScoreItem.getRemains()));

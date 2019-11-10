@@ -529,6 +529,12 @@ public class ReturnActivity extends AppCompatActivity
                 postData.put("OnePone", onePoneBody);
 
                 File photoFile = imagePresenter.getPhotoFile();
+
+                if(!shouldUpdate && photoFile == null){
+                    Toast.makeText(getApplicationContext(), "사진을 입력하세요", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 if(photoFile != null){
                     RequestBody imageFile = RequestBody.create(MediaType.parse("image/*"), photoFile);
                     postData.put("PublishImageFile\"; filename=\"pp.png\" ", imageFile);
@@ -544,6 +550,7 @@ public class ReturnActivity extends AppCompatActivity
                     callUpdate.enqueue(new Callback<SageoriResult>(){
                         @Override
                         public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
+                            imagePresenter.reset();
                             if(response.isSuccessful() && response.body().isSuccess()){
                                 Toast.makeText(getApplicationContext(), "수정되었습니다", Toast.LENGTH_SHORT).show();
 
@@ -562,6 +569,7 @@ public class ReturnActivity extends AppCompatActivity
 
                         @Override
                         public void onFailure(Call<SageoriResult> call, Throwable t) {
+                            imagePresenter.reset();
                             Toast.makeText(getApplicationContext(), "지급정보 수정실패", Toast.LENGTH_SHORT).show();
                             showProgressbar(false);
                             return;
@@ -572,6 +580,7 @@ public class ReturnActivity extends AppCompatActivity
                     callPost.enqueue(new Callback<SageoriResult>(){
                         @Override
                         public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
+                            imagePresenter.reset();
                             if(response.isSuccessful() && response.body().isSuccess()){
                                 Toast.makeText(getApplicationContext(), "등록되었습니다", Toast.LENGTH_SHORT).show();
 
@@ -586,6 +595,7 @@ public class ReturnActivity extends AppCompatActivity
 
                         @Override
                         public void onFailure(Call<SageoriResult> call, Throwable t) {
+                            imagePresenter.reset();
                             Toast.makeText(getApplicationContext(), "지급정보 등록실패", Toast.LENGTH_SHORT).show();
                             showProgressbar(false);
                             return;
