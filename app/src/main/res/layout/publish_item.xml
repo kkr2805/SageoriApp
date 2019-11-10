@@ -19,7 +19,7 @@
         android:id="@+id/member_name"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="6"
+        android:layout_weight="5"
         android:gravity="center"
         android:textSize="20sp"
         android:textAlignment="center"
