@@ -224,9 +224,13 @@ public class ReturnActivity extends AppCompatActivity
         }
     }
 
-    static final int REQUEST_IMAGE_CAPTURE = 1;
-    static final int REQUEST_TAKE_PHOTO = 1;
-    static final int RESULT_LOAD_IMG = 2;
+    static final int REQUEST_IMAGE_CAPTURE1 = 1;
+    static final int REQUEST_TAKE_PHOTO1 = 1;
+    static final int RESULT_LOAD_IMG1 = 2;
+
+    static final int REQUEST_IMAGE_CAPTURE2 = 3;
+    static final int REQUEST_TAKE_PHOTO2 = 3;
+    static final int RESULT_LOAD_IMG2 = 4;
 
     private Spinner machineSpinner;
     private Spinner machineSpinner1;
@@ -246,7 +250,8 @@ public class ReturnActivity extends AppCompatActivity
 
     SearchView searchView;
 
-    ImagePresenter imagePresenter;
+    ImagePresenter imagePresenter1;
+    ImagePresenter imagePresenter2;
 
     SearchParams searchParams;
     TextView editDate;
@@ -283,7 +288,8 @@ public class ReturnActivity extends AppCompatActivity
         // 검색조건
         searchParams = new SearchParams();
 
-        imagePresenter = new ImagePresenter(this);
+        imagePresenter1 = new ImagePresenter(this);
+        imagePresenter2 = new ImagePresenter(this);
 
         // ListView 설정
         ListView listView = (ListView)findViewById(R.id.listview);
@@ -388,34 +394,61 @@ public class ReturnActivity extends AppCompatActivity
         memberSpinnerAdapter = new MemberSpinnerAdapter(view.getContext(), android.R.layout.simple_spinner_item, memberList);
         memberSpinner.setAdapter(memberSpinnerAdapter);
 
-        // cameraButton
-        Button cameraButton = (Button)view.findViewById(R.id.buttonCamera);
-        cameraButton.setOnClickListener(new View.OnClickListener() {
+        // 사진1 항목
+        // cameraButton1
+        Button cameraButton1 = (Button)view.findViewById(R.id.buttonCamera1);
+        cameraButton1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                imagePresenter.dispatchTakePictureIntent(REQUEST_TAKE_PHOTO);
+                imagePresenter1.dispatchTakePictureIntent(REQUEST_TAKE_PHOTO1);
             }
         });
 
-        // galleryButton
-        Button galleryButton = (Button)view.findViewById(R.id.buttonGallery);
-        galleryButton.setOnClickListener(new View.OnClickListener(){
+        // galleryButton1
+        Button galleryButton1 = (Button)view.findViewById(R.id.buttonGallery1);
+        galleryButton1.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                imagePresenter.dispatchGalleryPictureIntent(RESULT_LOAD_IMG);
+                imagePresenter1.dispatchGalleryPictureIntent(RESULT_LOAD_IMG1);
             }
         });
 
-        ImageView returnImageView = (ImageView) view.findViewById(R.id.imageViewPublish);
-        imagePresenter.setImageView(returnImageView);
+        ImageView returnImageView1 = (ImageView) view.findViewById(R.id.imageViewPublish1);
+        imagePresenter1.setImageView(returnImageView1);
 
-
-        //previewImageDialog = null;
-
-        returnImageView.setOnClickListener(new View.OnClickListener() {
+        returnImageView1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                imagePresenter.showPreviewImageDialog();
+                imagePresenter1.showPreviewImageDialog();
+            }
+        });
+
+        // 사진2 항목
+        // cameraButton2
+        Button cameraButton2 = (Button)view.findViewById(R.id.buttonCamera2);
+        cameraButton2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imagePresenter2.dispatchTakePictureIntent(REQUEST_TAKE_PHOTO2);
+            }
+        });
+
+        // galleryButton2
+        Button galleryButton2 = (Button)view.findViewById(R.id.buttonGallery2);
+        galleryButton2.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                imagePresenter2.dispatchGalleryPictureIntent(RESULT_LOAD_IMG2);
+            }
+        });
+
+        ImageView returnImageView2 = (ImageView) view.findViewById(R.id.imageViewPublish2);
+        imagePresenter2.setImageView(returnImageView2);
+
+        returnImageView2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imagePresenter2.showPreviewImageDialog();
             }
         });
 
@@ -457,7 +490,8 @@ public class ReturnActivity extends AppCompatActivity
         if(shouldUpdate) {
 
             callbackMembers = new ReturnActivity.CallbackGetMembers(true, dataList.get(position).MemberID);
-            imagePresenter.requestImage(dataList.get(position).ImageFile);
+            imagePresenter1.requestImage(dataList.get(position).ImageFile1);
+            imagePresenter2.requestImage(dataList.get(position).ImageFile2);
 
         }else{
 
@@ -528,16 +562,27 @@ public class ReturnActivity extends AppCompatActivity
                 postData.put("Service", serviceBody);
                 postData.put("OnePone", onePoneBody);
 
-                File photoFile = imagePresenter.getPhotoFile();
+                File photoFile1 = imagePresenter1.getPhotoFile();
+                File photoFile2 = imagePresenter2.getPhotoFile();
 
-                if(!shouldUpdate && photoFile == null){
-                    Toast.makeText(getApplicationContext(), "사진을 입력하세요", Toast.LENGTH_SHORT).show();
+                if(!shouldUpdate && photoFile1 == null){
+                    Toast.makeText(getApplicationContext(), "사진1을 입력하세요", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
-                if(photoFile != null){
-                    RequestBody imageFile = RequestBody.create(MediaType.parse("image/*"), photoFile);
-                    postData.put("PublishImageFile\"; filename=\"pp.png\" ", imageFile);
+                if(!shouldUpdate && Integer.toString(machineList.get(machineSpinnerPos2)).isEmpty() == false && photoFile1 == null){
+                    Toast.makeText(getApplicationContext(), "사진2를 입력하세요", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(photoFile1 != null){
+                    RequestBody imageFile = RequestBody.create(MediaType.parse("image/*"), photoFile1);
+                    postData.put("ReturnImageFile1\"; filename=\"photo1.png\" ", imageFile);
+                }
+
+                if(photoFile2 != null){
+                    RequestBody imageFile = RequestBody.create(MediaType.parse("image/*"), photoFile2);
+                    postData.put("ReturnImageFile2\"; filename=\"photo2.png\" ", imageFile);
                 }
 
                 showProgressbar(true);
@@ -550,7 +595,8 @@ public class ReturnActivity extends AppCompatActivity
                     callUpdate.enqueue(new Callback<SageoriResult>(){
                         @Override
                         public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
-                            imagePresenter.reset();
+                            imagePresenter1.reset();
+                            imagePresenter2.reset();
                             if(response.isSuccessful() && response.body().isSuccess()){
                                 Toast.makeText(getApplicationContext(), "수정되었습니다", Toast.LENGTH_SHORT).show();
 
@@ -569,7 +615,8 @@ public class ReturnActivity extends AppCompatActivity
 
                         @Override
                         public void onFailure(Call<SageoriResult> call, Throwable t) {
-                            imagePresenter.reset();
+                            imagePresenter1.reset();
+                            imagePresenter2.reset();
                             Toast.makeText(getApplicationContext(), "지급정보 수정실패", Toast.LENGTH_SHORT).show();
                             showProgressbar(false);
                             return;
@@ -580,7 +627,8 @@ public class ReturnActivity extends AppCompatActivity
                     callPost.enqueue(new Callback<SageoriResult>(){
                         @Override
                         public void onResponse(Call<SageoriResult> call, Response<SageoriResult> response){
-                            imagePresenter.reset();
+                            imagePresenter1.reset();
+                            imagePresenter2.reset();
                             if(response.isSuccessful() && response.body().isSuccess()){
                                 Toast.makeText(getApplicationContext(), "등록되었습니다", Toast.LENGTH_SHORT).show();
 
@@ -595,7 +643,8 @@ public class ReturnActivity extends AppCompatActivity
 
                         @Override
                         public void onFailure(Call<SageoriResult> call, Throwable t) {
-                            imagePresenter.reset();
+                            imagePresenter1.reset();
+                            imagePresenter2.reset();
                             Toast.makeText(getApplicationContext(), "지급정보 등록실패", Toast.LENGTH_SHORT).show();
                             showProgressbar(false);
                             return;
@@ -888,7 +937,7 @@ public class ReturnActivity extends AppCompatActivity
     }
 
     private void showActionsDialog(final int position) {
-        CharSequence actionMenu[] = new CharSequence[]{"사진보기", "수정하기", "삭제하기"};
+        CharSequence actionMenu[] = new CharSequence[]{"사진보기1", "사진보기2", "수정하기", "삭제하기"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("작업을 선택하세요.");
@@ -897,10 +946,12 @@ public class ReturnActivity extends AppCompatActivity
             public void onClick(DialogInterface dialog, int which) {
 
                 if(which == 0) {
-                    imagePresenter.showPreviewImageDialog(dataList.get(position).ImageFile);
-                }else if (which == 1) {
+                    imagePresenter1.showPreviewImageDialog(dataList.get(position).ImageFile1);
+                } else if(which == 1) {
+                    imagePresenter2.showPreviewImageDialog(dataList.get(position).ImageFile2);
+                } else if (which == 2) {
                     showRetrunDialog(true, position);
-                } else if(which == 2) {
+                } else if(which == 3) {
 
                     showProgressbar(true);
                     final SageoriAPI api = SageoriClient.getAPI();
@@ -968,13 +1019,21 @@ public class ReturnActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_IMAGE_CAPTURE1 && resultCode == RESULT_OK) {
 
-            imagePresenter.onActivityResult(REQUEST_IMAGE_CAPTURE, data);
+            imagePresenter1.onActivityResult(REQUEST_IMAGE_CAPTURE1, data);
 
-        }else if(requestCode == RESULT_LOAD_IMG && resultCode == RESULT_OK) {
+        }else if(requestCode == RESULT_LOAD_IMG1 && resultCode == RESULT_OK) {
 
-            imagePresenter.onActivityResult(RESULT_LOAD_IMG, data);
+            imagePresenter1.onActivityResult(RESULT_LOAD_IMG1, data);
+
+        }else if (requestCode == REQUEST_IMAGE_CAPTURE2 && resultCode == RESULT_OK) {
+
+            imagePresenter2.onActivityResult(REQUEST_IMAGE_CAPTURE2, data);
+
+        }else if(requestCode == RESULT_LOAD_IMG2 && resultCode == RESULT_OK) {
+
+            imagePresenter2.onActivityResult(RESULT_LOAD_IMG2, data);
 
         }
 

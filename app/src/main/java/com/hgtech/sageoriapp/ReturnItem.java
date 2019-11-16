@@ -36,9 +36,13 @@ public class ReturnItem {
     @Expose
     public int OnePone;
 
-    @SerializedName("IMAGE_FILE")
+    @SerializedName("IMAGE_FILE1")
     @Expose
-    public String ImageFile;
+    public String ImageFile1;
+
+    @SerializedName("IMAGE_FILE2")
+    @Expose
+    public String ImageFile2;
 
     @SerializedName("CREATED_DATE")
     @Expose
