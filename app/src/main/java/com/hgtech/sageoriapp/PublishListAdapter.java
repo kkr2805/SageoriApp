@@ -105,7 +105,7 @@ public class PublishListAdapter extends ArrayAdapter<PublishItem>
         memberNameView.setText(currentPublishItem.MemberName);
 
         TextView createdDate = (TextView)listItemView.findViewById(R.id.CreatedDate);
-        createdDate.setText(new SimpleDateFormat("yyyy.MM.dd hh시 mm분").format(currentPublishItem.Date));
+        createdDate.setText(new SimpleDateFormat("yyyy.MM.dd HH시 mm분").format(currentPublishItem.Date));
 
         return listItemView;
     }

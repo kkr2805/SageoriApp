@@ -81,7 +81,10 @@ public class ReturnListAdapter extends ArrayAdapter<ReturnItem> {
         machineIDView1.setText(String.valueOf(currentReturnItem.MachineID1));
 
         TextView machineIDView2 = (TextView) listItemView.findViewById(R.id.machine_id2);
-        machineIDView2.setText(String.valueOf(currentReturnItem.MachineID2));
+        if(currentReturnItem.MachineID2 > 0)
+            machineIDView2.setText(String.valueOf(currentReturnItem.MachineID2));
+        else
+            machineIDView2.setText("");
 
         TextView returnLabel = (TextView)listItemView.findViewById(R.id.returnLabel);
         returnLabel.setText("회수");
@@ -111,7 +114,7 @@ public class ReturnListAdapter extends ArrayAdapter<ReturnItem> {
         memberNameView.setText(currentReturnItem.MemberName);
 
         TextView createdDate = (TextView)listItemView.findViewById(R.id.CreatedDate);
-        createdDate.setText(new SimpleDateFormat("yyyy.MM.dd hh시 mm분").format(currentReturnItem.Date));
+        createdDate.setText(new SimpleDateFormat("yyyy.MM.dd HH시 mm분").format(currentReturnItem.Date));
 
         return listItemView;
     }

@@ -75,10 +75,6 @@ public class PublishActivity extends AppCompatActivity
     static final int RESULT_LOAD_IMG = 2;
     static final int SEARCH_DIALOG = 3;
 
-    private Spinner machineSpinner;
-    private List<Integer> machineList;
-    private ArrayAdapter<Integer> machineListAdapter;
-
     private Spinner memberSpinner;
     private List<MemberItem> memberList;
     private MemberSpinnerAdapter memberSpinnerAdapter;
@@ -130,53 +126,6 @@ public class PublishActivity extends AppCompatActivity
 
         @Override
         public void onFailure(Call<List<PublishItem>> call, Throwable t) {
-            String strErrMessage = new String("데이터 조회 실패." );
-            strErrMessage += t.getMessage();
-            Toast.makeText(getApplicationContext(), strErrMessage, Toast.LENGTH_SHORT).show();
-            PublishActivity.this.showProgressbar(false);
-        }
-    }
-
-    private class CallbackGetMachines implements Callback<List<Integer>> {
-
-        private boolean bShouldUpdate;
-        private int machineID;
-
-        CallbackGetMachines() {
-            this.bShouldUpdate = false; 
-            this.machineID = 0;
-        }
-
-        CallbackGetMachines(boolean bShouldUpdate, int machineID) {
-            this.bShouldUpdate = bShouldUpdate; 
-            this.machineID = machineID;
-        }
-
-        @Override
-        public void onResponse(Call<List<Integer>> call, Response<List<Integer>> response){
-            if(response.isSuccessful()){
-                machineList = response.body();
-
-                if(machineSpinner != null && machineListAdapter != null)
-                {
-                    machineListAdapter.clear();
-                    machineListAdapter.addAll(machineList);
-                    machineListAdapter.notifyDataSetChanged();
-
-                    if(this.bShouldUpdate == true){
-                        int index = machineList.indexOf(new Integer(this.machineID));
-                        machineSpinner.setSelection(index);
-                    }
-                }
-                Log.d("Tag", "데이터 조회 완료");
-                Toast.makeText(getApplicationContext(), "데이터 조회 완료.", Toast.LENGTH_SHORT).show();
-            }
-
-            PublishActivity.this.showProgressbar(false);
-        }
-
-        @Override
-        public void onFailure(Call<List<Integer>> call, Throwable t) {
             String strErrMessage = new String("데이터 조회 실패." );
             strErrMessage += t.getMessage();
             Toast.makeText(getApplicationContext(), strErrMessage, Toast.LENGTH_SHORT).show();
@@ -340,12 +289,8 @@ public class PublishActivity extends AppCompatActivity
         AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(PublishActivity.this);
         alertDialogBuilderUserInput.setView(view);
 
-
-        // machine spinner
-        machineSpinner = (Spinner)view.findViewById(R.id.spinnerMachine);
-        machineList = new ArrayList<>();
-        machineListAdapter = new ArrayAdapter<Integer>(view.getContext(), android.R.layout.simple_spinner_item, machineList);
-        machineSpinner.setAdapter(machineListAdapter);
+        // machine EditText
+        EditText machineEditText = (EditText)view.findViewById(R.id.editTextMachine);
 
         // member spinner
         memberSpinner = (Spinner)view.findViewById(R.id.spinnerMember);
@@ -389,6 +334,7 @@ public class PublishActivity extends AppCompatActivity
 
 
         if(shouldUpdate) {
+            machineEditText.setText(Integer.toString(dataList.get(position).MachineID));
             editCredit.setText(Integer.toString(dataList.get(position).Credit));
             editBank.setText(Integer.toString(dataList.get(position).Bank));
         }
@@ -423,30 +369,26 @@ public class PublishActivity extends AppCompatActivity
             callbackMembers = new CallbackGetMembers();
         }
         callMembers.enqueue(callbackMembers);
-        Call<List<Integer>> callMachines = api.getMachines();
-        CallbackGetMachines callbackMachines;
         if(shouldUpdate) {
 
-            callbackMachines = new CallbackGetMachines(true, dataList.get(position).MachineID);
             imagePresenter.requestImage(dataList.get(position).ImageFile);
 
-        }else{
-            callbackMachines = new CallbackGetMachines();
         }
-        callMachines.enqueue(callbackMachines);
 
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                EditText machineEditText = (EditText)alertDialog.findViewById(R.id.editTextMachine);
                 EditText creditEdit = (EditText)alertDialog.findViewById(R.id.editTextCredit);
                 EditText bankEdit = (EditText)alertDialog.findViewById(R.id.editTextBank);
 
+                String strMachineID = machineEditText.getText().toString();
                 String strCredit = creditEdit.getText().toString();
                 String strBank = bankEdit.getText().toString();
 
-                if(machineSpinner.getSelectedItemPosition() < 0) {
-                    Toast.makeText(getApplicationContext(), "기계번호를 선택하세요.", Toast.LENGTH_SHORT).show();
+                if(strMachineID.isEmpty() || Integer.parseInt(strMachineID) <= 0) {
+                    Toast.makeText(getApplicationContext(), "기계번호를 입력하세요.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -467,14 +409,13 @@ public class PublishActivity extends AppCompatActivity
                     return;
                 }
 
-                int machineSpinnerPos = machineSpinner.getSelectedItemPosition();
                 int memberSpinnerPos = memberSpinner.getSelectedItemPosition();
 
 
                 HashMap<String, RequestBody> postData = new HashMap<String, RequestBody>();
 
 
-                RequestBody machineID = RequestBody.create(MediaType.parse("text/plain"), Integer.toString(machineList.get(machineSpinnerPos)));
+                RequestBody machineID = RequestBody.create(MediaType.parse("text/plain"), strMachineID);
                 RequestBody memberID = RequestBody.create(MediaType.parse("text/plain"), Integer.toString(memberList.get(memberSpinnerPos).ID));
                 RequestBody credit = RequestBody.create(MediaType.parse("text/plain"), strCredit);
                 RequestBody bank = RequestBody.create(MediaType.parse("text/plain"), strBank);
@@ -574,15 +515,11 @@ public class PublishActivity extends AppCompatActivity
 
 
         CheckBox checkBoxMachine = (CheckBox) view.findViewById(R.id.checkBoxMachine);
+        final EditText searchMachineEditText = (EditText)view.findViewById(R.id.editTextMachine);
         if(searchParams.checkMachineID){
             checkBoxMachine.setChecked(true);
+            searchMachineEditText.setText(Integer.toString(searchParams.machineID));
         }
-
-        // machine spinner
-        machineSpinner = (Spinner)view.findViewById(R.id.spinnerMachine);
-        machineList = new ArrayList<>();
-        machineListAdapter = new ArrayAdapter<Integer>(view.getContext(), android.R.layout.simple_spinner_item, machineList);
-        machineSpinner.setAdapter(machineListAdapter);
 
         CheckBox checkBoxMember = (CheckBox) view.findViewById(R.id.checkBoxMember);
         if(searchParams.checkMemberID){
@@ -731,10 +668,6 @@ public class PublishActivity extends AppCompatActivity
         CallbackGetMembers callbackMembers;
         callbackMembers = new CallbackGetMembers(true, searchParams.memberID);
         callMembers.enqueue(callbackMembers);
-        Call<List<Integer>> callMachines = api.getMachines();
-        CallbackGetMachines callbackMachines;
-        callbackMachines = new CallbackGetMachines(true, searchParams.machineID);
-        callMachines.enqueue(callbackMachines);
 
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -744,14 +677,14 @@ public class PublishActivity extends AppCompatActivity
                 CheckBox checkBoxMember = (CheckBox) alertDialog.findViewById(R.id.checkBoxMember);
                 CheckBox checkBoxDate = (CheckBox) alertDialog.findViewById(R.id.checkBoxDate);
 
-                int machineSpinnerPos = machineSpinner.getSelectedItemPosition();
                 int memberSpinnerPos = memberSpinner.getSelectedItemPosition();
 
+                String strMachineID = searchMachineEditText.getText().toString();
                 String strDate = editDate.getText().toString();
                 String strDateStart = editDateStart.getText().toString();
                 String strDateEnd = editDateEnd.getText().toString();
 
-                if(checkBoxMachine.isChecked() && machineSpinner.getSelectedItemPosition() < 0) {
+                if(checkBoxMachine.isChecked() && strMachineID.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "기계번호를 선택하세요.", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -776,7 +709,7 @@ public class PublishActivity extends AppCompatActivity
 
                 if(checkBoxMachine.isChecked()){
                     PublishActivity.this.searchParams.checkMachineID = true;
-                    PublishActivity.this.searchParams.machineID = machineList.get(machineSpinnerPos);
+                    PublishActivity.this.searchParams.machineID = Integer.parseInt(strMachineID);
                 }else{
                     PublishActivity.this.searchParams.checkMachineID = false;
                     PublishActivity.this.searchParams.machineID = -1;
@@ -822,7 +755,7 @@ public class PublishActivity extends AppCompatActivity
                 HashMap<String, String> getData = new HashMap<String, String>();
 
                 if(checkBoxMachine.isChecked())
-                    getData.put("MachineID", Integer.toString(machineList.get(machineSpinnerPos)));
+                    getData.put("MachineID", strMachineID);
 
                 if(checkBoxMember.isChecked())
                     getData.put("MemberID", Integer.toString(memberList.get(memberSpinnerPos).ID));

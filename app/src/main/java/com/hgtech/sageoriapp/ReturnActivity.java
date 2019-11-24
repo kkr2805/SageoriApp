@@ -76,105 +76,6 @@ public class ReturnActivity extends AppCompatActivity
         }
     }
 
-    private class CallbackGetMachines implements Callback<List<Integer>> {
-
-        private boolean bShouldUpdate;
-        private int machineID1;
-        private int machineID2;
-
-        CallbackGetMachines() {
-            this.bShouldUpdate = false;
-            this.machineID1 = 0;
-        }
-
-        CallbackGetMachines(boolean bShouldUpdate, int machineID1, int machineID2) {
-            this.bShouldUpdate = bShouldUpdate;
-            this.machineID1 = machineID1;
-            this.machineID2 = machineID2;
-        }
-
-        @Override
-        public void onResponse(Call<List<Integer>> call, Response<List<Integer>> response){
-            if(response.isSuccessful()){
-                machineList = response.body();
-
-                if(machineSpinner1 != null && machineSpinner2 != null && machineListAdapter != null)
-                {
-                    machineListAdapter.clear();
-                    machineListAdapter.addAll(machineList);
-                    machineListAdapter.notifyDataSetChanged();
-
-                    if(this.bShouldUpdate == true){
-                        int index1 = machineList.indexOf(new Integer(this.machineID1));
-                        int index2 = machineList.indexOf(new Integer(this.machineID2));
-                        machineSpinner1.setSelection(index1);
-                        machineSpinner2.setSelection(index2);
-                    }
-                }
-                Log.d("Tag", "데이터 조회 완료");
-                Toast.makeText(getApplicationContext(), "데이터 조회 완료.", Toast.LENGTH_SHORT).show();
-            }
-
-            ReturnActivity.this.showProgressbar(false);
-        }
-
-        @Override
-        public void onFailure(Call<List<Integer>> call, Throwable t) {
-            String strErrMessage = new String("데이터 조회 실패." );
-            strErrMessage += t.getMessage();
-            Toast.makeText(getApplicationContext(), strErrMessage, Toast.LENGTH_SHORT).show();
-            ReturnActivity.this.showProgressbar(false);
-        }
-    }
-
-    private class CallbackGetMachines2 implements Callback<List<Integer>> {
-
-        private boolean bShouldUpdate;
-        private int machineID;
-
-        CallbackGetMachines2() {
-            this.bShouldUpdate = false;
-            this.machineID = 0;
-        }
-
-        CallbackGetMachines2(boolean bShouldUpdate, int machineID) {
-            this.bShouldUpdate = bShouldUpdate;
-            this.machineID = machineID;
-        }
-
-        @Override
-        public void onResponse(Call<List<Integer>> call, Response<List<Integer>> response){
-            if(response.isSuccessful()){
-                machineList = response.body();
-
-                if(machineSpinner != null && machineListAdapter != null)
-                {
-                    machineListAdapter.clear();
-                    machineListAdapter.addAll(machineList);
-                    machineListAdapter.notifyDataSetChanged();
-
-                    if(this.bShouldUpdate == true){
-                        int index = machineList.indexOf(new Integer(this.machineID));
-                        machineSpinner.setSelection(index);
-                    }
-                }
-                Log.d("Tag", "데이터 조회 완료");
-                Toast.makeText(getApplicationContext(), "데이터 조회 완료.", Toast.LENGTH_SHORT).show();
-            }
-
-            ReturnActivity.this.showProgressbar(false);
-        }
-
-        @Override
-        public void onFailure(Call<List<Integer>> call, Throwable t) {
-            String strErrMessage = new String("데이터 조회 실패." );
-            strErrMessage += t.getMessage();
-            Toast.makeText(getApplicationContext(), strErrMessage, Toast.LENGTH_SHORT).show();
-            ReturnActivity.this.showProgressbar(false);
-        }
-    }
-
-
     private class CallbackGetMembers implements Callback<List<MemberItem>> {
 
         private boolean bShouldUpdate;
@@ -231,12 +132,6 @@ public class ReturnActivity extends AppCompatActivity
     static final int REQUEST_IMAGE_CAPTURE2 = 3;
     static final int REQUEST_TAKE_PHOTO2 = 3;
     static final int RESULT_LOAD_IMG2 = 4;
-
-    private Spinner machineSpinner;
-    private Spinner machineSpinner1;
-    private Spinner machineSpinner2;
-    private List<Integer> machineList;
-    private ArrayAdapter<Integer> machineListAdapter;
 
     private Spinner memberSpinner;
     private List<MemberItem> memberList;
@@ -377,17 +272,6 @@ public class ReturnActivity extends AppCompatActivity
         AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(ReturnActivity.this);
         alertDialogBuilderUserInput.setView(view);
 
-        machineList = new ArrayList<>();
-        machineListAdapter = new ArrayAdapter<Integer>(view.getContext(), android.R.layout.simple_spinner_item, machineList);
-
-        // machine spinner1
-        machineSpinner1 = (Spinner)view.findViewById(R.id.spinnerMachine1);
-        machineSpinner1.setAdapter(machineListAdapter);
-
-        // machine spinner
-        machineSpinner2 = (Spinner)view.findViewById(R.id.spinnerMachine2);
-        machineSpinner2.setAdapter(machineListAdapter);
-
         // member spinner
         memberSpinner = (Spinner)view.findViewById(R.id.spinnerMember);
         memberList = new ArrayList<>();
@@ -452,12 +336,21 @@ public class ReturnActivity extends AppCompatActivity
             }
         });
 
+        EditText editMachine1 = (EditText)view.findViewById(R.id.editTextMachine1);
+        EditText editMachine2 = (EditText)view.findViewById(R.id.editTextMachine2);
         EditText editReturn = (EditText)view.findViewById(R.id.editTextReturn);
         EditText editService = (EditText)view.findViewById(R.id.editTextService);
         EditText editOnePone = (EditText)view.findViewById(R.id.editTextOnePone);
 
 
         if(shouldUpdate) {
+            editMachine1.setText(Integer.toString(dataList.get(position).MachineID1));
+
+            if(dataList.get(position).MachineID2 != 0)
+                editMachine2.setText(Integer.toString(dataList.get(position).MachineID2));
+            else
+                editMachine2.setText("");
+
             editReturn.setText(Integer.toString(dataList.get(position).Retrun));
             editService.setText(Integer.toString(dataList.get(position).Service));
             editOnePone.setText(Integer.toString(dataList.get(position).OnePone));
@@ -499,34 +392,26 @@ public class ReturnActivity extends AppCompatActivity
 
         }
         callMembers.enqueue(callbackMembers);
-        Call<List<Integer>> callMachines = api.getMachines();
-        ReturnActivity.CallbackGetMachines callbackMachines;
-        if(shouldUpdate) {
-            callbackMachines = new ReturnActivity.CallbackGetMachines(true, dataList.get(position).MachineID1, dataList.get(position).MachineID2);
-        }else{
-            callbackMachines = new ReturnActivity.CallbackGetMachines();
-        }
-        callMachines.enqueue(callbackMachines);
 
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
+                EditText editMachine1 = (EditText)alertDialog.findViewById(R.id.editTextMachine1);
+                EditText editMachine2 = (EditText)alertDialog.findViewById(R.id.editTextMachine2);
                 EditText editReturn = (EditText)alertDialog.findViewById(R.id.editTextReturn);
                 EditText editService = (EditText)alertDialog.findViewById(R.id.editTextService);
                 EditText editOnePone = (EditText)alertDialog.findViewById(R.id.editTextOnePone);
 
+
+                String strMachineID1 = editMachine1.getText().toString();
+                String strMachineID2 = editMachine2.getText().toString();
                 String strReturn = editReturn.getText().toString();
                 String strService = editService.getText().toString();
                 String strOnePone = editOnePone.getText().toString();
 
-                if(machineSpinner1.getSelectedItemPosition() < 0) {
-                    Toast.makeText(getApplicationContext(), "기계번호1을 선택하세요.", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if(machineSpinner2.getSelectedItemPosition() < 0) {
-                    Toast.makeText(getApplicationContext(), "기계번호2를 선택하세요.", Toast.LENGTH_SHORT).show();
+                if(strMachineID1.isEmpty() || Integer.parseInt(strMachineID1) <= 0) {
+                    Toast.makeText(getApplicationContext(), "기계번호1을 입력하세요.", Toast.LENGTH_SHORT).show();
                     return;
                 }
 
@@ -541,22 +426,24 @@ public class ReturnActivity extends AppCompatActivity
                     return;
                 }
 
-                int machineSpinnerPos1 = machineSpinner1.getSelectedItemPosition();
-                int machineSpinnerPos2 = machineSpinner2.getSelectedItemPosition();
                 int memberSpinnerPos = memberSpinner.getSelectedItemPosition();
 
 
                 HashMap<String, RequestBody> postData = new HashMap<String, RequestBody>();
 
-                RequestBody machineID1 = RequestBody.create(MediaType.parse("text/plain"), Integer.toString(machineList.get(machineSpinnerPos1)));
-                RequestBody machineID2 = RequestBody.create(MediaType.parse("text/plain"), Integer.toString(machineList.get(machineSpinnerPos2)));
+                RequestBody machineID1 = RequestBody.create(MediaType.parse("text/plain"), strMachineID1);
                 RequestBody memberID = RequestBody.create(MediaType.parse("text/plain"), Integer.toString(memberList.get(memberSpinnerPos).ID));
                 RequestBody returnBody = RequestBody.create(MediaType.parse("text/plain"), strReturn);
                 RequestBody serviceBody = RequestBody.create(MediaType.parse("text/plain"), strService.isEmpty() ? "0" : strService);
                 RequestBody onePoneBody = RequestBody.create(MediaType.parse("text/plain"), strOnePone.isEmpty() ? "0" : strOnePone);
 
                 postData.put("MachineID1", machineID1);
-                postData.put("MachineID2", machineID2);
+
+                if(!strMachineID2.isEmpty() && Integer.parseInt(strMachineID2) > 0){
+                    RequestBody machineID2 = RequestBody.create(MediaType.parse("text/plain"), strMachineID2);
+                    postData.put("MachineID2", machineID2);
+                }
+
                 postData.put("MemberID", memberID);
                 postData.put("Return", returnBody);
                 postData.put("Service", serviceBody);
@@ -570,9 +457,14 @@ public class ReturnActivity extends AppCompatActivity
                     return;
                 }
 
-                if(!shouldUpdate && Integer.toString(machineList.get(machineSpinnerPos2)).isEmpty() == false && photoFile1 == null){
+                if(!shouldUpdate && strMachineID2.isEmpty() == false && photoFile2 == null){
                     Toast.makeText(getApplicationContext(), "사진2를 입력하세요", Toast.LENGTH_SHORT).show();
                     return;
+                }else if(shouldUpdate && dataList.get(position).MachineID2 <= 0){
+                    if(strMachineID2.isEmpty() == false && photoFile2 == null){
+                        Toast.makeText(getApplicationContext(), "사진2를 입력하세요", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
                 }
 
                 if(photoFile1 != null){
@@ -665,15 +557,12 @@ public class ReturnActivity extends AppCompatActivity
         alertDialogBuilderUserInput.setView(view);
 
         CheckBox checkBoxMachine = (CheckBox) view.findViewById(R.id.checkBoxMachine);
+        final EditText machineEditText = (EditText)view.findViewById(R.id.editTextMachine);
+
         if(searchParams.checkMachineID){
             checkBoxMachine.setChecked(true);
+            machineEditText.setText(Integer.toString(searchParams.machineID));
         }
-
-        // machine spinner
-        machineSpinner = (Spinner)view.findViewById(R.id.spinnerMachine);
-        machineList = new ArrayList<>();
-        machineListAdapter = new ArrayAdapter<Integer>(view.getContext(), android.R.layout.simple_spinner_item, machineList);
-        machineSpinner.setAdapter(machineListAdapter);
 
         CheckBox checkBoxMember = (CheckBox) view.findViewById(R.id.checkBoxMember);
         if(searchParams.checkMemberID){
@@ -821,10 +710,6 @@ public class ReturnActivity extends AppCompatActivity
         ReturnActivity.CallbackGetMembers callbackMembers;
         callbackMembers = new ReturnActivity.CallbackGetMembers(true, searchParams.memberID);
         callMembers.enqueue(callbackMembers);
-        Call<List<Integer>> callMachines = api.getMachines();
-        ReturnActivity.CallbackGetMachines2 callbackMachines;
-        callbackMachines = new ReturnActivity.CallbackGetMachines2(true, searchParams.machineID);
-        callMachines.enqueue(callbackMachines);
 
         alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -834,14 +719,14 @@ public class ReturnActivity extends AppCompatActivity
                 CheckBox checkBoxMember = (CheckBox) alertDialog.findViewById(R.id.checkBoxMember);
                 CheckBox checkBoxDate = (CheckBox) alertDialog.findViewById(R.id.checkBoxDate);
 
-                int machineSpinnerPos = machineSpinner.getSelectedItemPosition();
                 int memberSpinnerPos = memberSpinner.getSelectedItemPosition();
 
+                String strMachineID = machineEditText.getText().toString();
                 String strDate = editDate.getText().toString();
                 String strDateStart = editDateStart.getText().toString();
                 String strDateEnd = editDateEnd.getText().toString();
 
-                if(checkBoxMachine.isChecked() && machineSpinner.getSelectedItemPosition() < 0) {
+                if(checkBoxMachine.isChecked() && strMachineID.isEmpty()) {
                     Toast.makeText(getApplicationContext(), "기계번호를 선택하세요.", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -866,7 +751,7 @@ public class ReturnActivity extends AppCompatActivity
 
                 if(checkBoxMachine.isChecked()){
                     ReturnActivity.this.searchParams.checkMachineID = true;
-                    ReturnActivity.this.searchParams.machineID = machineList.get(machineSpinnerPos);
+                    ReturnActivity.this.searchParams.machineID = Integer.parseInt(strMachineID);
                 }else{
                     ReturnActivity.this.searchParams.checkMachineID = false;
                     ReturnActivity.this.searchParams.machineID = -1;
@@ -912,7 +797,7 @@ public class ReturnActivity extends AppCompatActivity
                 HashMap<String, String> getData = new HashMap<String, String>();
 
                 if(checkBoxMachine.isChecked())
-                    getData.put("MachineID", Integer.toString(machineList.get(machineSpinnerPos)));
+                    getData.put("MachineID", strMachineID);
 
                 if(checkBoxMember.isChecked())
                     getData.put("MemberID", Integer.toString(memberList.get(memberSpinnerPos).ID));

@@ -32,12 +32,13 @@
             android:textColor="@color/textColor"
             android:text="기계번호" />
 
-        <Spinner
-            android:id="@+id/spinnerMachine"
+        <EditText
+            android:id="@+id/editTextMachine"
             android:layout_width="0dp"
             android:layout_height="50dp"
             android:textColor="@color/textColor"
             android:theme="@style/AppTheme"
+            android:inputType="numberDecimal"
             android:layout_weight="3" />
 
 
