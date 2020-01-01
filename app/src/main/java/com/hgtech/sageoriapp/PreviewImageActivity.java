@@ -1,20 +1,22 @@
 package com.hgtech.sageoriapp;
 
-import android.app.Dialog;
-import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.graphics.PointF;
-import android.util.FloatMath;
+import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+
 import java.io.File;
 
-public class PreViewImageDialog extends Dialog implements View.OnTouchListener {
+public class PreviewImageActivity extends AppCompatActivity implements View.OnTouchListener  {
 
     // These matrices will be used to move and zoom image
     Matrix matrix = new Matrix();
@@ -35,16 +37,50 @@ public class PreViewImageDialog extends Dialog implements View.OnTouchListener {
     ImageView view = null;
     Bitmap imageBitmap;
 
-    PreViewImageDialog(Context context, Bitmap image) {
-        super(context);
-
-        this.imageBitmap = image;
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.preview_image_dialog);
-        setCancelable(true);
 
-        view = (ImageView)findViewById(R.id.imageView);
+        view = findViewById(R.id.imageView);
+        Intent intent = getIntent();
+        String bmpPath = intent.getStringExtra("image") + ".jpg";
+
+        //blackJin 이 들어간 파일들을 저장할 배열 입니다.
+        String blackJins = null;
+
+        File file = new File(getCacheDir().toString());
+
+
+        File[] files = file.listFiles();
+
+        Log.d("MyTag", "load cache storage : " + file.getAbsolutePath() + ", " + files.length);
+
+        for(File tempFile : files) {
+
+            Log.d("MyTag",tempFile.getName());
+
+            //blackJin 이 들어가 있는 파일명을 찾습니다.
+            if(tempFile.getName().equals(bmpPath)) {
+
+                blackJins = tempFile.getName();
+                break;
+            }
+
+        }
+
+        if(blackJins != null) {
+
+            String path = getCacheDir() + "/" + blackJins;
+
+            Log.d("MyTag", "load image from cache storage : " + path);
+
+            //파일경로로부터 비트맵을 생성합니다.
+            imageBitmap = BitmapFactory.decodeFile(path);
+        }
+
+
         view.setImageBitmap(imageBitmap);
-
         view.setOnTouchListener(this);
     }
 

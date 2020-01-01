@@ -20,6 +20,7 @@ import android.widget.Toast;
 import androidx.core.content.FileProvider;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -94,6 +95,23 @@ public class ImagePresenter {
         previewImageDialog.show();
     }
 
+    public void showPreviewImageDialog(Bitmap bmp){
+        if(previewImageDialog == null)
+        {
+            Toast.makeText(activity, "사진이 없습니다.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        saveBitmapToJpeg(bmp, "temp_image");
+
+        Intent intent = new Intent(activity, PreviewImageActivity.class);
+        intent.putExtra("image", "temp_image");
+
+        Log.e("MyTag","start activity ");
+
+        activity.startActivity(intent);
+    }
+
     public void showPreviewImageDialog(String urlPath){
         previewImageDialog = null;
 
@@ -122,6 +140,40 @@ public class ImagePresenter {
                 // TODO
             }
         });
+    }
+
+    private void saveBitmapToJpeg(Bitmap bitmap, String name) {
+
+        //내부저장소 캐시 경로를 받아옵니다.
+        File storage = activity.getCacheDir();
+
+        //저장할 파일 이름
+        String fileName = name + ".jpg";
+
+        //storage 에 파일 인스턴스를 생성합니다.
+        File tempFile = new File(storage, fileName);
+
+        try {
+
+            // 자동으로 빈 파일을 생성합니다.
+            tempFile.createNewFile();
+
+            // 파일을 쓸 수 있는 스트림을 준비합니다.
+            FileOutputStream out = new FileOutputStream(tempFile);
+
+            // compress 함수를 사용해 스트림에 비트맵을 저장합니다.
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, out);
+
+            // 스트림 사용후 닫아줍니다.
+            out.close();
+
+            Log.e("MyTag","saveBitmap to cache " + tempFile.getAbsolutePath());
+
+        } catch (FileNotFoundException e) {
+            Log.e("MyTag","FileNotFoundException : " + e.getMessage());
+        } catch (IOException e) {
+            Log.e("MyTag","IOException : " + e.getMessage());
+        }
     }
 
     /* Get uri related content real local file path. */
