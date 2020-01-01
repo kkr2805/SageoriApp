@@ -70,6 +70,9 @@ public interface SageoriAPI {
     @GET("/api/get_score_items")
     Call<List<ScoreItem>> getScoreItems();
 
+    @GET("/api/get_score_item")
+    Call<ScoreItem> getScoreItem(@Query("id") int memberID);
+
     @GET("/api/get_exchanges")
     Call<List<ExchageItem>> getExchageItems(@Query("id") int memberID);
 

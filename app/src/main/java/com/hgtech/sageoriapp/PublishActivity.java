@@ -182,6 +182,30 @@ public class PublishActivity extends AppCompatActivity
         }
     }
 
+    private class CallbackGetScoreItem implements Callback<ScoreItem> {
+        @Override
+        public void onResponse(Call<ScoreItem> call, Response<ScoreItem> response){
+            if(response.isSuccessful()){
+                ScoreItem scoreItem = response.body();
+
+                showScoreItemDialog(scoreItem);
+
+                Log.d("Tag", "데이터 조회 완료 ");
+                Toast.makeText(getApplicationContext(), "데이터 조회 완료.", Toast.LENGTH_SHORT).show();
+            }
+
+            PublishActivity.this.showProgressbar(false);
+        }
+
+        @Override
+        public void onFailure(Call<ScoreItem> call, Throwable t) {
+            String strErrMessage = new String("데이터 조회 실패!" );
+            strErrMessage += t.getMessage();
+            Toast.makeText(getApplicationContext(), strErrMessage, Toast.LENGTH_SHORT).show();
+            PublishActivity.this.showProgressbar(false);
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -780,8 +804,52 @@ public class PublishActivity extends AppCompatActivity
         });
     }
 
+    private void showScoreItemDialog(ScoreItem scoreItem){
+        LayoutInflater layoutInflaterAndroid = LayoutInflater.from(getApplicationContext());
+        View view = layoutInflaterAndroid.inflate(R.layout.scoreitem_dialog, null);
+
+        AlertDialog.Builder alertDialogBuilderUserInput = new AlertDialog.Builder(PublishActivity.this);
+        alertDialogBuilderUserInput.setView(view);
+
+        TextView memberNameView = (TextView) view.findViewById(R.id.member_name);
+        memberNameView.setText(scoreItem.MemberName);
+
+        TextView scoreLabelView = (TextView) view.findViewById(R.id.scoreLabel);
+        scoreLabelView.setText("누적");
+
+        TextView scoreView = (TextView)view.findViewById(R.id.score);
+        scoreView.setText(NumberFormatter.getNumberString(scoreItem.Score));
+
+        TextView exchangeLabelView = (TextView) view.findViewById(R.id.exchangeLabel);
+        exchangeLabelView.setText("차감");
+
+        TextView exchangeView = (TextView) view.findViewById(R.id.exchange);
+        exchangeView.setText(NumberFormatter.getNumberString(scoreItem.Exchange));
+
+        TextView returnLabel = (TextView)view.findViewById(R.id.returnLabel);
+        returnLabel.setText("회수");
+
+        TextView returnValueLabel = (TextView) view.findViewById(R.id.returnValue);
+        returnValueLabel.setText(NumberFormatter.getNumberString(scoreItem.ReturnValue));
+
+        TextView publishLabelView = (TextView) view.findViewById(R.id.publishLabel);
+        publishLabelView.setText("지급");
+
+        TextView publishView = (TextView) view.findViewById(R.id.publish);
+        publishView.setText(NumberFormatter.getNumberString(scoreItem.Publish));
+
+        TextView totalLabel = (TextView)view.findViewById(R.id.totalLabel);
+        totalLabel.setText("합계");
+
+        TextView totalView = (TextView) view.findViewById(R.id.total);
+        totalView.setText(NumberFormatter.getNumberString(scoreItem.getRemains()));
+
+        final AlertDialog alertDialog = alertDialogBuilderUserInput.create();
+        alertDialog.show();
+    }
+
     private void showActionsDialog(final int position) {
-        CharSequence actionMenu[] = new CharSequence[]{"사진보기", "수정하기", "삭제하기"};
+        CharSequence actionMenu[] = new CharSequence[]{"점수총액", "사진보기", "수정하기", "삭제하기"};
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("작업을 선택하세요.");
@@ -789,11 +857,18 @@ public class PublishActivity extends AppCompatActivity
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 if(which == 0){
+                    showProgressbar(true);
+                    final SageoriAPI api = SageoriClient.getAPI();
+
+                    Call<ScoreItem> callScoreItem = api.getScoreItem(dataList.get(position).MemberID);
+                    callScoreItem.enqueue(new CallbackGetScoreItem());
+                }
+                else if(which == 1){
                     imagePresenter.showPreviewImageDialog(dataList.get(position).ImageFile);
                 }
-                else if (which == 1) {
+                else if (which == 2) {
                     showPublishDialog(true, position);
-                } else if(which == 2) {
+                } else if(which == 3) {
 
                     showProgressbar(true);
                     final SageoriAPI api = SageoriClient.getAPI();
